@@ -53,24 +53,12 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void echoEditText(View view ) {
+    public void displaySettings(View view ) {
         Intent intent = new Intent(this, Echo.class);
-        EditText editText = (EditText) findViewById(R.id.edit_text_on_main);
-        String message = editText.getText().toString();
-        intent.putExtra(MainActivity.extra_echo_edit_text, message);
         startActivity(intent);
     }
 
-    public void saveTextView2(View view) {
-/*        EditText editText = (EditText) findViewById(R.id.textView2);
-        String str = editText.getText().toString();
-
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.preference_textview2), str);
-        editor.commit();*/
-    }
-
+    
     public void button3Save(View view) {
 
     }
@@ -119,8 +107,5 @@ public class MainActivity extends ActionBarActivity {
 
             return rootView;
         }
-
-
     }
-
 }
