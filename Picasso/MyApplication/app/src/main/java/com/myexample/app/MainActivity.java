@@ -62,13 +62,13 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void saveTextView2(View view) {
-        EditText editText = (EditText) findViewById(R.id.textView2);
+/*        EditText editText = (EditText) findViewById(R.id.textView2);
         String str = editText.getText().toString();
 
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.preference_textview2), str);
-        editor.commit();
+        editor.commit();*/
     }
 
     public void button3Save(View view) {
@@ -97,14 +97,14 @@ public class MainActivity extends ActionBarActivity {
             SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
             String str = sharedPref.getString(getString(R.string.preference_textview2), "R.string.preference_textview2 not found");
 
-            EditText editText = (EditText) rootView.findViewById(R.id.textView2);
-            editText.setText(str);
+//            EditText editText = (EditText) rootView.findViewById(R.id.textView2);
+//            editText.setText(str);
 
             /*
             example of saving file system-esque
             Internal storage
             */
-            String filename = "myfile";
+            /*String filename = "myfile";
             String string = "Hello world!";
             FileOutputStream outputStream;
 
@@ -114,7 +114,7 @@ public class MainActivity extends ActionBarActivity {
                 outputStream.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
 
 
             return rootView;
