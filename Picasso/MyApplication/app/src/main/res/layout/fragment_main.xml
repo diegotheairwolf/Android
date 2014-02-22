@@ -34,6 +34,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="A Seizure Detection and Notification System"
         android:id="@+id/textView"
+        android:textStyle="italic"
         android:layout_alignBottom="@+id/imageView"
         android:layout_centerHorizontal="true" />
 

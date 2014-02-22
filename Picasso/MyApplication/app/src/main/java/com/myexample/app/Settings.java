@@ -19,7 +19,7 @@ import android.content.DialogInterface;
 
 
 
-public class Echo extends ActionBarActivity {
+public class Settings extends ActionBarActivity {
 
     private static String message;
 

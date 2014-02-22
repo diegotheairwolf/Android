@@ -17,8 +17,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.myexample.app.Echo"
-            android:label="@string/title_activity_echo"
+            android:name=".Settings"
+            android:label="@string/title_activity_settings"
             android:parentActivityName="com.myexample.app.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
