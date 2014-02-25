@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="/home/pablo/Group-Dev/Android/Picasso/PebbleKit/app/src/main/res" >
+            <file
+                path="/home/pablo/Group-Dev/Android/Picasso/PebbleKit/app/src/main/res/values/strings.xml"
+                qualifiers="" >
+                <string name="app_name" >PEBBLE_SPORTS_SDK
+                </string>
+            </file>
+            <file
+                name="main"
+                path="/home/pablo/Group-Dev/Android/Picasso/PebbleKit/app/src/main/res/layout/main.xml"
+                qualifiers=""
+                type="layout" />
+        </source>
+        <source path="/home/pablo/Group-Dev/Android/Picasso/PebbleKit/app/build/res/rs/debug" />
+        <source path="/home/pablo/Group-Dev/Android/Picasso/PebbleKit/app/build/res/generated/debug" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/home/pablo/Group-Dev/Android/Picasso/PebbleKit/app/src/debug/res" />
+    </dataSet>
+
+</merger>
