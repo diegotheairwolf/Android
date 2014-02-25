@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <PreferenceScreen
+            android:key="button_emergency_contacts_key"
+            android:title="@string/pref_contacts_setup"
+            android:persistent="true">
+            <ListPreference
+                android:dependency="button_emergency_contacts_key"
+                android:key="pref_setup_emergency_contacts"
+                android:title="@string/pref_setup_emergency_contacts"
+                android:dialogTitle="@string/pref_setup_emergency_contacts"
+                android:entries="@array/pref_emergency_contacts_entries"
+                android:entryValues="@array/pref_emergency_contacts_values"
+                android:defaultValue="@string/pref_emergency_contacts_default" />
+        </PreferenceScreen>
+
+</PreferenceScreen>
