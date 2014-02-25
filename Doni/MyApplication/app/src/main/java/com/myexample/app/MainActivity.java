@@ -1,7 +1,6 @@
 package com.myexample.app;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,12 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.content.Intent;
-import android.widget.EditText;
 import android.content.Context;
 import android.content.SharedPreferences;
-import java.io.FileOutputStream;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -53,23 +49,11 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void echoEditText(View view ) {
-        Intent intent = new Intent(this, Echo.class);
-        EditText editText = (EditText) findViewById(R.id.edit_text_on_main);
-        String message = editText.getText().toString();
-        intent.putExtra(MainActivity.extra_echo_edit_text, message);
+    public void displaySettings(View view ) {
+        Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
-    public void saveTextView2(View view) {
-        EditText editText = (EditText) findViewById(R.id.textView2);
-        String str = editText.getText().toString();
-
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.preference_textview2), str);
-        editor.commit();
-    }
 
     public void button3Save(View view) {
 
@@ -97,14 +81,14 @@ public class MainActivity extends ActionBarActivity {
             SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
             String str = sharedPref.getString(getString(R.string.preference_textview2), "R.string.preference_textview2 not found");
 
-            EditText editText = (EditText) rootView.findViewById(R.id.textView2);
-            editText.setText(str);
+//            EditText editText = (EditText) rootView.findViewById(R.id.textView2);
+//            editText.setText(str);
 
             /*
             example of saving file system-esque
             Internal storage
             */
-            String filename = "myfile";
+            /*String filename = "myfile";
             String string = "Hello world!";
             FileOutputStream outputStream;
 
@@ -114,13 +98,10 @@ public class MainActivity extends ActionBarActivity {
                 outputStream.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
 
 
             return rootView;
         }
-
-
     }
-
 }

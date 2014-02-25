@@ -19,7 +19,7 @@ import android.content.DialogInterface;
 
 
 
-public class Echo extends ActionBarActivity {
+public class Settings extends ActionBarActivity {
 
     private static String message;
 
@@ -27,7 +27,7 @@ public class Echo extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_echo);
+        setContentView(R.layout.activity_settings);
 
 
         if (savedInstanceState == null) {
@@ -45,7 +45,7 @@ public class Echo extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.echo, menu);
+        getMenuInflater().inflate(R.menu.settings, menu);
         return true;
     }
 
@@ -72,9 +72,9 @@ public class Echo extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_echo, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
 
-            TextView textView = (TextView) rootView.findViewById(R.id.dynamic_text_on_echo);
+            TextView textView = (TextView) rootView.findViewById(R.id.dynamic_text_on_settings);
             textView.setText(message);
 
             return rootView;

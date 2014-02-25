@@ -1,0 +1,11 @@
+
+
+
+1.
+Research if we can use an existing Preference thing. 
+PreferenceList is not the one we need. 
+If we can't find one, research how to make our custom Preference.
+It should just be 
+Maybe just dynamically add checkboxespreference, each of which is a contact info
+
+2.
