@@ -37,7 +37,7 @@ public class Settings extends ActionBarActivity {
         }
 
         Intent intent = getIntent();
-        message = intent.getStringExtra(MainActivity.extra_echo_edit_text);
+//        message = intent.getStringExtra(MainActivity.extra_echo_edit_text);
     }
 
 
@@ -74,8 +74,8 @@ public class Settings extends ActionBarActivity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
 
-            TextView textView = (TextView) rootView.findViewById(R.id.dynamic_text_on_settings);
-            textView.setText(message);
+//            TextView textView = (TextView) rootView.findViewById(R.id.dynamic_text_on_settings);
+//            textView.setText(message);
 
             return rootView;
         }
