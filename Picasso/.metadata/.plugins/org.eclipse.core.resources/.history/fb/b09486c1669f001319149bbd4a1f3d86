@@ -1,9 +1,5 @@
 package com.example.seizealert;
 
-import java.util.UUID;
-
-import com.getpebble.android.kit.PebbleKit;
-
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -13,9 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 public class Welcome extends Activity {
-	private static final UUID SEIZE_ALERT_APP_UUID = UUID.fromString("5f60123d-353f-421f-9882-1a3a71875a0e");
-    private final StringBuilder mDisplayText = new StringBuilder();
-    private PebbleKit.PebbleDataLogReceiver mDataLogReceiver = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
