@@ -108,7 +108,9 @@ public class Welcome extends Activity {
             	//handler.notify();
             	event = SeizeAlert.fromInt(tag.intValue()).getName();
             	if ( event.equals("fall") ){
-            		handleSeizureAlert();
+            		displayAlertMessage("Alert!!!", "Did you fall?");
+            	} else if ( event.equals("seizure") ){
+            		displayAlertMessage("Alert!!!", "Did you have a seizure?");
             	}
             	
             	handler.post(new Runnable() {
@@ -124,11 +126,7 @@ public class Welcome extends Activity {
         PebbleKit.registerDataLogReceiver(this, mDataLogReceiver);
         PebbleKit.requestDataLogsForApp(this, SEIZE_ALERT_APP_UUID);
     }
-
-    private void handleSeizureAlert() {
-    	displayAlertMessage("Alert!!!", "Did You Just Fell?");
-    }
-
+    
     private String getUintAsTimestamp(UnsignedInteger uint) {
         return DATE_FORMAT.format(new Date(uint.longValue() * 1000L)).toString();
     }
