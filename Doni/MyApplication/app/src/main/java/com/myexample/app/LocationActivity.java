@@ -34,7 +34,7 @@ public class LocationActivity extends ActionBarActivity{
         }
 
         // *** start ***
-        Log.i("***** start: ", "location attempt*****");
+        Log.i("***** start: ", "location attempt *****");
 
         LatLng coor = getLocation();
 
