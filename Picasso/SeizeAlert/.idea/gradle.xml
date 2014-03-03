@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="LOCAL" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleHome" value="$USER_HOME$/.gradle/wrapper/dists/gradle-1.9-all/3jdgemv0iv8uqohg3kcp2o88r1/gradle-1.9" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
+
