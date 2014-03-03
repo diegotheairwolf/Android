@@ -7,5 +7,6 @@
     <string name="place_holder">asdfasdf</string>
     <string name="preference_textview2">com.myexample.app.textview2</string>
     <string name="whatever">whatever</string>
+    <string name="title_activity_location">LocationActivity</string>
 
 </resources>

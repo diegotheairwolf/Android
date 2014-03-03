@@ -54,6 +54,12 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public void getLocationButton(View view) {
+        Intent intent = new Intent(this, LocationActivity.class);
+        startActivity(intent);
+
+    }
+
 
     public void button3Save(View view) {
 

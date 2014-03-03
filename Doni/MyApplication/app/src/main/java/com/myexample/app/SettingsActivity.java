@@ -2,6 +2,7 @@ package com.myexample.app;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -16,10 +17,13 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -32,7 +36,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
+public class SettingsActivity extends PreferenceActivity {
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -45,11 +49,18 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupActionBar();
+
+
+        Log.i("out of the settingsactivity onCreate", "*****");
     }
 
 
+
+    /*
     @Override
     public boolean onPreferenceClick(Preference preference) {
+
+        Log.i("*** in onPreferenceClick ***", "*** in onPreferenceClick***");
         String key = preference.getKey();
         if(key.equals("key_add_contact")){
             addContact();
@@ -63,12 +74,42 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     }
 
     private void addContact() {
+        // dynamiclally pop up an edittextpreference
+        // they input
+        // we get thr values (name and number)
+        // throw that in the map
+
+        SharedPreferences sp = getSharedPreferences("file_contacts_list", MODE_WORLD_WRITEABLE);
+        if ( sp.contains("john") )
+            Log.i("aw yiss", "aw yiss");
+        else
+            Log.i("fuck", "fuck");
+
+
+        // my list of names, icon locations
+        Map<String, String> contactsList = new HashMap<String, String>();
+        contactsList.put("Picasso", "123 456 789");
+        contactsList.put("Airwolf", "456 789 123");
+        contactsList.put("Doni", "789 123 456");
+
+        SharedPreferences keyValues = getSharedPreferences("file_contacts_list", MODE_PRIVATE);
+        SharedPreferences.Editor keyValuesEditor = keyValues.edit();
+
+        for (String s : contactsList.keySet()) {
+            // use the name as the key, and the icon as the value
+            keyValuesEditor.putString(s, contactsList.get(s));
+        }
+        keyValuesEditor.commit();
+
+
 
     }
 
     private void deleteContacts() {
-
+        Log.i("wut*************", "wut**********");
     }
+
+    */
 
 
 
@@ -238,6 +279,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
                 preference.setSummary(stringValue);
+                Log.i("wut", "wut");
             }
             return true;
         }
@@ -333,13 +375,23 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_contacts);
 
+
+            getPreferenceScreen().setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    return false;
+                }
+            });
+
+
+
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("sync_frequency"));
         }
-
 
     }
 }

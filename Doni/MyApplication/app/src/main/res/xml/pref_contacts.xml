@@ -9,9 +9,11 @@
         android:persistent="true">
         <Preference
             android:key="key_add_contact"
+            android:enabled="true"
             android:title="+" />
         <Preference
             android:key="key_delete_contacts"
+            android:enabled="true"
             android:title="Delete" />
     </PreferenceScreen>
 
