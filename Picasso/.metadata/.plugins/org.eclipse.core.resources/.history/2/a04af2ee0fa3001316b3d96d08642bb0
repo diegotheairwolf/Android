@@ -17,7 +17,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.telephony.SmsManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -110,10 +109,10 @@ public class Welcome extends Activity {
             	event = SeizeAlert.fromInt(tag.intValue()).getName();
             	if ( event.equals("fall") ){
             		displayAlertMessage("Alert!!!", "Did you fall?");
-            		sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
+            		
             	} else if ( event.equals("seizure") ){
             		displayAlertMessage("Alert!!!", "Did you have a seizure?");
-            		sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
+            		
             	}
             	
             	handler.post(new Runnable() {
@@ -183,14 +182,5 @@ public class Welcome extends Activity {
     		public void onClick(DialogInterface dialog, int whichButton){}
     	})
     	.show();
-    }
-    
-    
-  /*  
-   * Sends an SMS message to another device
-  */  
-    private void sendSMS(String phoneNumber, String message){
-    	SmsManager sms = SmsManager.getDefault();
-    	sms.sendTextMessage(phoneNumber, null, message, null, null);
     }
 }
