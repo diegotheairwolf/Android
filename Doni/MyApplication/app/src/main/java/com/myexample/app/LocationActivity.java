@@ -33,6 +33,7 @@ public class LocationActivity extends ActionBarActivity{
                     .commit();
         }
 
+        // *** start ***
         Log.i("***** start: ", "location attempt*****");
 
         LatLng coor = getLocation();
@@ -40,6 +41,7 @@ public class LocationActivity extends ActionBarActivity{
         Log.i("***** coors: ", "lat: " + coor.lat + "lon: " + coor.lon);
 
         Log.i("***** end: ", "location attempt *****");
+        // *** end ***
 
 
     }
