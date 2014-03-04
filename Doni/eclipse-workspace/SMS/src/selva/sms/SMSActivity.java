@@ -1,7 +1,9 @@
 package selva.sms;
 
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,120 +12,116 @@ import android.telephony.gsm.SmsManager;
 import android.view.View;
 import android.widget.Button;
 
-
-
-//import com.google.android.gms.common.GooglePlayServicesUtil;
-
-
+import android.location.Address;
 //*** start ***
-import android.location.GpsStatus.Listener;
-import android.location.*;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.util.Log;
 import android.location.Criteria;
+import android.location.Geocoder;
 //*** end ***
 
 public class SMSActivity extends Activity {
 	
 	Button btnSendSMS;
-	LatLng coor;
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		// *** start ***
-        Log.i("***** start: ", "location attempt *****");
-
-        this.coor = getLocation();	
-
-        Log.i("***** coors: ", "lat: " + coor.lat + "lon: " + coor.lon);
-
-        Log.i("***** end: ", "location attempt *****");
-        // *** end ***
-
 		setContentView(R.layout.main);
 		btnSendSMS = (Button) findViewById(R.id.btnSendSMS);
-		/*
 		btnSendSMS.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v){
-				sendSMS("5129445248", "Hello, the patient Andoni Mendoza is having a seizure at" +
-						"the location: x");
+				
+				
+				/*
+				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+				
+			    locationManager.requestLocationUpdates(
+			    		LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
+			    	        @Override
+			    	        public void onStatusChanged(String provider, int status, Bundle extras) {
+			    	        }
+			    	        @Override
+			    	        public void onProviderEnabled(String provider) {
+			    	        }
+			    	        @Override
+			    	        public void onProviderDisabled(String provider) {
+			    	        }
+			    	        @Override
+			    	        public void onLocationChanged(final Location location) {
+			    	        	Log.i("***** location changed", "" + location.getLatitude() + " " + location.getLongitude());
+			    	        	Log.i("", "");
+			    	        }
+			    	    });
+				Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+				
+				Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+				List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+				*/
+				
+				String str = getAddress();
+				
+				sendSMS("5129445248", "Hello, the patient XXXXXXXXX is having a seizure at" +
+						"the location: x " + str);
+				Log.i("***** breakpoint", " ");
 			}
 		});
-		*/
 	}
 	//---sends an SMS message to another device---
+	
+	
+	
+	private String getAddress() {
+		
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		
+	    locationManager.requestLocationUpdates(
+	    		LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
+	    	        @Override
+	    	        public void onStatusChanged(String provider, int status, Bundle extras) {
+	    	        }
+	    	        @Override
+	    	        public void onProviderEnabled(String provider) {
+	    	        }
+	    	        @Override
+	    	        public void onProviderDisabled(String provider) {
+	    	        }
+	    	        @Override
+	    	        public void onLocationChanged(final Location location) {
+	    	        	Log.i("***** location changed", "" + location.getLatitude() + " " + location.getLongitude());
+	    	        	Log.i("", "");
+	    	        }
+	    	    });
+		Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		
+		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+		List<Address> addresses = null;
+		try {
+			addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String str = addresses.get(0).getAddressLine(0);
+		Log.i("***** address:", str);
+		return str;
+	}
+	
+	
+	
+	
+	
 
-private void sendSMS(String phoneNumber, String message){
-	SmsManager sms = SmsManager.getDefault();
-	sms.sendTextMessage(phoneNumber, null, message, null, null);
-} 
+	private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+	} 
 
-//*** start ***
-public LatLng getLocation()
-{
-    // Get the location manager
-    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    
-    
-   // GooglePlayServicesUtil.isGooglePlayServicesAvailable();
-    
-    
-    Log.i("***** status:", "*****");    
-   
-    List<String> provs = locationManager.getAllProviders();
-    
-    int index = 0;
-    for(int i = 0; i < provs.size(); i++) {
-    	Log.i("*** this one: ", provs.get(i));
-    	Location location = locationManager.getLastKnownLocation(provs.get(i));
-    	if ( location != null) {
-    		
-    		//Log.i("*****this: ", "" + location.getLatitude() );
-    		Log.i("****not null!", "found!");
-    		
-    	}
-    	else {
-    		Log.i("*** shit mayne", "****");
-    	}
-    }
-    
-    //Location location = locationManager.getLastKnownLocation(provs.get(index));
-    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-    
-    Log.i("***** end", "*****");
-    
-    
-    /*
-    Criteria criteria = new Criteria();
-    String bestProvider = locationManager.getBestProvider(criteria, false);
-    Location location = locationManager.getLastKnownLocation(bestProvider);
-    */
-    Double lat,lon;
-    try {
-        lat = location.getLatitude ();
-        lon = location.getLongitude ();
-        return new LatLng(lat, lon);
-    }
-    catch (NullPointerException e){
-        e.printStackTrace();
-        return null;
-    }
-}
-
-class LatLng {
-
-    Double lat;
-    Double lon;
-
-    LatLng(Double lat, Double lon) {
-        this.lat = lat;
-        this.lon = lon;
-    }
-
-}
-// *** end ***
 
 /*
 //Acquire a reference to the system Location Manager
