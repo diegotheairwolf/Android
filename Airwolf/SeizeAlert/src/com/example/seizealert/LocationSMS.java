@@ -1,4 +1,4 @@
-package selva.sms;
+package com.example.seizealert;
 
 
 import java.io.IOException;
@@ -13,41 +13,36 @@ import android.view.View;
 import android.widget.Button;
 
 import android.location.Address;
-//*** start ***
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.util.Log;
 import android.location.Criteria;
 import android.location.Geocoder;
-//*** end ***
 
-public class SMSActivity extends Activity {
-	
-	Button btnSendSMS;
+
+public class LocationSMS extends Activity {
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.main);
-		btnSendSMS = (Button) findViewById(R.id.btnSendSMS);
-		btnSendSMS.setOnClickListener(new View.OnClickListener(){
-			public void onClick(View v){
+		String str = getAddress();
 				
-				String str = getAddress();
-				
-				sendSMS("5129445248", "Hello, the patient XXXXXXXXX is having a seizure at" +
-						"the location: x " + str);
-				Log.i("***** breakpoint", " ");
-			}
-		});
+		sendSMS("5129445248", "Hello, the patient XXXXXXXXX is having a seizure at" +
+				"the location: x " + str);
+		Log.i("***** breakpoint", " ");
 	}
+	
+	
 	//---sends an SMS message to another device---
+	private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+	} 
 	
-	
-	
+	// Gets the location coordinates and translates them into GeoCoordinates
 	private String getAddress() {
 		
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -68,11 +63,13 @@ public class SMSActivity extends Activity {
 	    	        	Log.i("***** location changed", "" + location.getLatitude() + " " + location.getLongitude());
 	    	        	Log.i("", "");
 	    	        }
-	    	    });
+	    		});
+	    
 		Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		
 		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 		List<Address> addresses = null;
+		
 		try {
 			addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
 		} catch (IOException e) {
@@ -85,36 +82,4 @@ public class SMSActivity extends Activity {
 		return str;
 	}
 	
-	
-	
-	
-	
-
-	private void sendSMS(String phoneNumber, String message){
-		SmsManager sms = SmsManager.getDefault();
-		sms.sendTextMessage(phoneNumber, null, message, null, null);
-	} 
-
-
-/*
-//Acquire a reference to the system Location Manager
-LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-//Define a listener that responds to location updates
-LocationListener locationListener = new LocationListener() {
- public void onLocationChanged(Location location) {
-   // Called when a new location is found by the network location provider.
-   makeUseOfNewLocation(location);
- }
-
- public void onStatusChanged(String provider, int status, Bundle extras) {}
-
- public void onProviderEnabled(String provider) {}
-
- public void onProviderDisabled(String provider) {}
-};
-
-//Register the listener with the Location Manager to receive location updates
-locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-*/
 }

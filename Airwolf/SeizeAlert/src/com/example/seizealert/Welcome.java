@@ -17,6 +17,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.telephony.SmsManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +28,7 @@ public class Welcome extends Activity {
 	private static final UUID SEIZE_ALERT_APP_UUID = UUID.fromString("5f60123d-353f-421f-9882-1a3a71875a0e");
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private PebbleKit.PebbleDataLogReceiver mDataLogReceiver = null;
+    private static final int GET_SMS_LOC_REQUEST = 1; //The request code
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +110,17 @@ public class Welcome extends Activity {
             	//handler.notify();
             	event = SeizeAlert.fromInt(tag.intValue()).getName();
             	if ( event.equals("fall") ){
-            		handleSeizureAlert();
+            		displayAlertMessage("Alert!!!", "Did you fall?");
+            		
+            		Intent intent = new Intent(LocationSMS.class);
+                    startActivity(intent);
+                    
+            		sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
+            		
+            		
+            	} else if ( event.equals("seizure") ){
+            		displayAlertMessage("Alert!!!", "Did you have a seizure?");
+            		sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
             	}
             	
             	handler.post(new Runnable() {
@@ -125,15 +137,13 @@ public class Welcome extends Activity {
         PebbleKit.requestDataLogsForApp(this, SEIZE_ALERT_APP_UUID);
     }
 
-    private void handleSeizureAlert() {
-    	displayAlertMessage("Alert!!!", "Did You Just Fell?");
-    }
-
+	/*
     private String getUintAsTimestamp(UnsignedInteger uint) {
         return DATE_FORMAT.format(new Date(uint.longValue() * 1000L)).toString();
     }
+    */
 
-    private static enum SeizeAlert {
+	private static enum SeizeAlert {
         FALL(0x5),
         SEIZURE(0xd),
         UNKNOWN(0xff);
@@ -165,6 +175,9 @@ public class Welcome extends Activity {
     
     /*
      * This function displays an alert message!!!
+     * Inputs:
+     * title - a string to be displayed as title of warning box.
+     * mymessage - the message to be displayed on text box.
     */
     
     public void displayAlertMessage(String title, String mymessage) {
@@ -177,5 +190,14 @@ public class Welcome extends Activity {
     		public void onClick(DialogInterface dialog, int whichButton){}
     	})
     	.show();
+    }
+    
+    
+  /*  
+   * Sends an SMS message to another device
+  */  
+    private void sendSMS(String phoneNumber, String message){
+    	SmsManager sms = SmsManager.getDefault();
+    	sms.sendTextMessage(phoneNumber, null, message, null, null);
     }
 }
