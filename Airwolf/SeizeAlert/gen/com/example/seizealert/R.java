@@ -50,6 +50,7 @@ public final class R {
         public static final int app_name=0x7f050000;
         public static final int hello_world=0x7f050002;
         public static final int pref_add_contact=0x7f050018;
+        public static final int pref_bluetooth=0x7f05001b;
         public static final int pref_default_display_name=0x7f05000c;
         public static final int pref_delete_contact=0x7f050019;
         public static final int pref_description_social_recommendations=0x7f05000a;
