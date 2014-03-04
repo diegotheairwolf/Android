@@ -2,20 +2,27 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="263" key="DIALOG_WIDTH"/>
-		<item value="173" key="DIALOG_Y_ORIGIN"/>
+		<item value="16" key="DIALOG_Y_ORIGIN"/>
+		<item value="1045" key="DIALOG_X_ORIGIN"/>
 		<item value="399" key="DIALOG_HEIGHT"/>
-		<item value="568" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Lucida Grande|11.0|0|COCOA|1|LucidaGrande" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
-		<item value="false" key="isRegEx"/>
 		<item value="false" key="casesensitive"/>
+		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="Google" key="selection"/>
+		<item value="data" key="selection"/>
 		<list key="findhistory">
-			<item value="google"/>
+			<item value="data"/>
+			<item value="context"/>
+			<item value="cont"/>
+			<item value="con"/>
+			<item value="loc"/>
+			<item value="getlocation"/>
+			<item value="getloc"/>
+			<item value="getl"/>
 		</list>
 		<list key="replacehistory">
 		</list>
