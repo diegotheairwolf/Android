@@ -110,10 +110,10 @@ public class Welcome extends Activity {
             	event = SeizeAlert.fromInt(tag.intValue()).getName();
             	if ( event.equals("fall") ){
             		displayAlertMessage("Alert!!!", "Did you fall?");
-            		sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
+            		sendSMS("5129445248", "Hello, the patient XXX XXX has fallen at Y Location");
             	} else if ( event.equals("seizure") ){
             		displayAlertMessage("Alert!!!", "Did you have a seizure?");
-            		sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
+            		sendSMS("5129445248", "Hello, the patient XXX XXX had a seizure at Y Location");
             	}
             	
             	handler.post(new Runnable() {
