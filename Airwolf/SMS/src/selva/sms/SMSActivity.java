@@ -1,16 +1,23 @@
 package selva.sms;
 
 
+import java.util.List;
+
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.telephony.gsm.SmsManager;
 import android.view.View;
 import android.widget.Button;
 
+
+
+//import com.google.android.gms.common.GooglePlayServicesUtil;
+
+
 //*** start ***
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.location.GpsStatus.Listener;
+import android.location.*;
 import android.util.Log;
 import android.location.Criteria;
 //*** end ***
@@ -18,6 +25,7 @@ import android.location.Criteria;
 public class SMSActivity extends Activity {
 	
 	Button btnSendSMS;
+	LatLng coor;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -27,7 +35,7 @@ public class SMSActivity extends Activity {
 		// *** start ***
         Log.i("***** start: ", "location attempt *****");
 
-        final LatLng coor = getLocation();
+        this.coor = getLocation();	
 
         Log.i("***** coors: ", "lat: " + coor.lat + "lon: " + coor.lon);
 
@@ -36,12 +44,14 @@ public class SMSActivity extends Activity {
 
 		setContentView(R.layout.main);
 		btnSendSMS = (Button) findViewById(R.id.btnSendSMS);
+		
 		btnSendSMS.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v){
 				sendSMS("5129445248", "Hello, the patient Andoni Mendoza is having a seizure at" +
 						"the location: x");
 			}
 		});
+		
 	}
 	//---sends an SMS message to another device---
 
@@ -54,10 +64,42 @@ private void sendSMS(String phoneNumber, String message){
 public LatLng getLocation()
 {
     // Get the location manager
-    LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    
+    
+   // GooglePlayServicesUtil.isGooglePlayServicesAvailable();
+    
+    
+    Log.i("***** status:", "*****");    
+   
+    List<String> provs = locationManager.getAllProviders();
+    
+    int index = 0;
+    for(int i = 0; i < provs.size(); i++) {
+    	Log.i("*** this one: ", provs.get(i));
+    	Location location = locationManager.getLastKnownLocation(provs.get(i));
+    	if ( location != null) {
+    		
+    		//Log.i("*****this: ", "" + location.getLatitude() );
+    		Log.i("****not null!", "found!");
+    		
+    	}
+    	else {
+    		Log.i("*** shit mayne", "****");
+    	}
+    }
+    
+    //Location location = locationManager.getLastKnownLocation(provs.get(index));
+    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+    
+    Log.i("***** end", "*****");
+    
+    
+    /*
     Criteria criteria = new Criteria();
     String bestProvider = locationManager.getBestProvider(criteria, false);
     Location location = locationManager.getLastKnownLocation(bestProvider);
+    */
     Double lat,lon;
     try {
         lat = location.getLatitude ();
