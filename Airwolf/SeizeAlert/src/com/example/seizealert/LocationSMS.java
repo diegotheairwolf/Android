@@ -32,14 +32,16 @@ public class LocationSMS extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		// Get current address
-		String str = getAddress();
+		// String address = getAddress();
 		
 		// Get username currently on preferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		String username = prefs.getString("username", "");
-				
+		
+		// Use the default value if username is null.	
+		
 		sendSMS("5129445248", "Hello, the patient " + username + 
-				" is having a seizure at the location: " + str);
+				" is having a seizure at the location: " /*+ address*/);
 		
 		Log.i("***** breakpoint", " ");
 	}
