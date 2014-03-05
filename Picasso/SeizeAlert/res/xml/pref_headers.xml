@@ -12,6 +12,12 @@
     <header
         android:fragment="com.example.seizealert.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
+    <header
+        android:fragment="com.example.seizealert.SettingsActivity$ContactsPreferenceFragment"
+        android:title="@string/pref_header_contacts" />
+    <header
+        android:fragment="com.example.seizealert.SettingsActivity$BluetoothPreferenceFragment"
+        android:title="@string/pref_header_bluetooth" />
 
     <!-- These settings headers are only used on tablets. -->
 
@@ -24,5 +30,11 @@
     <header
         android:fragment="com.example.seizealert.Settings$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
+    <header
+        android:fragment="com.example.seizealert.Settings$ContactsPreferenceFragment"
+        android:title="@string/pref_header_contacts" />
+    <header
+        android:fragment="com.example.seizealert.Settings$BluetoothPreferenceFragment"
+        android:title="@string/pref_header_bluetooth" />
 
 </preference-headers>
