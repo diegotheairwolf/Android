@@ -7,7 +7,10 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.telephony.gsm.SmsManager;
 import android.view.View;
 import android.widget.Button;
@@ -28,10 +31,16 @@ public class LocationSMS extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		// Get current address
 		String str = getAddress();
+		
+		// Get username currently on preferences
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		String username = prefs.getString("username", "");
 				
-		sendSMS("5129445248", "Hello, the patient XXXXXXXXX is having a seizure at" +
-				"the location: x " + str);
+		sendSMS("5129445248", "Hello, the patient " + username + 
+				" is having a seizure at the location: " + str);
+		
 		Log.i("***** breakpoint", " ");
 	}
 	

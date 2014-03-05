@@ -9,3 +9,9 @@ It should just be
 Maybe just dynamically add checkboxespreference, each of which is a contact info
 
 2.
+
+Change XXXXXX to UserName		— DONE
+	Save patient’s username		- DONE
+shortened url with pinned location
+send email as well
+sound notification
