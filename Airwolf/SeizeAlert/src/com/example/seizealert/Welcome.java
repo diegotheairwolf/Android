@@ -112,15 +112,19 @@ public class Welcome extends Activity {
             	if ( event.equals("fall") ){
             		displayAlertMessage("Alert!!!", "Did you fall?");
             		
-            		Intent intent = new Intent(LocationSMS.class);
+            		Intent intent = new Intent(context, LocationSMS.class);
                     startActivity(intent);
                     
-            		sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
+            		//sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
             		
             		
             	} else if ( event.equals("seizure") ){
             		displayAlertMessage("Alert!!!", "Did you have a seizure?");
-            		sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
+            		
+            		Intent intent = new Intent(context, LocationSMS.class);
+                    startActivity(intent);
+                    
+            		//sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
             	}
             	
             	handler.post(new Runnable() {

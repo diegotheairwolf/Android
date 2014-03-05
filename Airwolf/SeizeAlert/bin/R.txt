@@ -19,6 +19,7 @@ int string action_settings 0x7f050001
 int string app_name 0x7f050000
 int string hello_world 0x7f050002
 int string pref_add_contact 0x7f050018
+int string pref_bluetooth 0x7f05001b
 int string pref_default_display_name 0x7f05000c
 int string pref_delete_contact 0x7f050019
 int string pref_description_social_recommendations 0x7f05000a
