@@ -62,7 +62,8 @@
     <string name="pref_delete_contact">Delete Contacts</string>
     
     <!-- Example settings for Bluetooth -->
-    <string name="pref_header_bluetooth">Connectivity</string>
+    <string name="pref_header_connectivity">Connectivity</string>
     <string name="pref_bluetooth">Bluetooth</string>
+    <string name="pref_gps">GPS</string>
     
 </resources>

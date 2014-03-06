@@ -113,7 +113,7 @@ public class Welcome extends Activity {
             		displayAlertMessage("Alert!!!", "Did you fall?");
             		
             		Intent intent = new Intent(context, LocationSMS.class);
-                    startActivity(intent);
+                    startService(intent);
                     
             		//sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
             		
@@ -122,7 +122,7 @@ public class Welcome extends Activity {
             		displayAlertMessage("Alert!!!", "Did you have a seizure?");
             		
             		Intent intent = new Intent(context, LocationSMS.class);
-                    startActivity(intent);
+                    startService(intent);
                     
             		//sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
             	}

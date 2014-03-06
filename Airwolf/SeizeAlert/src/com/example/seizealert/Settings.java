@@ -2,6 +2,7 @@ package com.example.seizealert;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -46,6 +47,18 @@ public class Settings extends PreferenceActivity {
 		super.onPostCreate(savedInstanceState);
 
 		setupSimplePreferencesScreen();
+		
+		// Access to the LOCATION ACCESS GPS preference
+		Preference goToGPS = (Preference) findPreference("gps");
+		goToGPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+		        public boolean onPreferenceClick(Preference preference) {
+		            Intent viewIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+		            startActivity(viewIntent);
+
+		            return true;
+		        }
+		});
 	}
 
 	/**
@@ -84,9 +97,9 @@ public class Settings extends PreferenceActivity {
 		
 		// Add 'bluetooth' preferences, and a corresponding header.
 		fakeHeader = new PreferenceCategory(this);
-		fakeHeader.setTitle(R.string.pref_header_bluetooth);
+		fakeHeader.setTitle(R.string.pref_header_connectivity);
 		getPreferenceScreen().addPreference(fakeHeader);
-		addPreferencesFromResource(R.xml.pref_bluetooth);
+		addPreferencesFromResource(R.xml.pref_connectivity);
 		
 		
 
@@ -100,6 +113,7 @@ public class Settings extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("add_contact"));
 		bindPreferenceSummaryToValue(findPreference("delete_contact"));
 		bindPreferenceSummaryToValue(findPreference("bluetooth"));
+		bindPreferenceSummaryToValue(findPreference("gps"));
 	}
 
 	/** {@inheritDoc} */
@@ -147,6 +161,8 @@ public class Settings extends PreferenceActivity {
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object value) {
 			String stringValue = value.toString();
+			
+			
 
 			if (preference instanceof ListPreference) {
 				// For list preferences, look up the correct display value in
@@ -305,13 +321,16 @@ public class Settings extends PreferenceActivity {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			addPreferencesFromResource(R.xml.pref_bluetooth);
+			addPreferencesFromResource(R.xml.pref_connectivity);
 
 			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
 			// to their values. When their values change, their summaries are
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
+			
+			
 			bindPreferenceSummaryToValue(findPreference("bluetooth"));
+			bindPreferenceSummaryToValue(findPreference("gps"));
 		}
 	}
 	

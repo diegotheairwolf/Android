@@ -5,5 +5,10 @@
         		android:key="bluetooth">
     	<intent android:action="android.settings.BLUETOOTH_SETTINGS" />
     </Preference>
+    
+    <Preference android:title="@string/pref_gps" 
+        		android:key="gps">
+    	//<intent android:action="android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS" />
+    </Preference>
 
 </PreferenceScreen>

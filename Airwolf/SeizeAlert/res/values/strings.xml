@@ -7,5 +7,6 @@
     <string name="seizealert_logo">SeizeAlert Logo</string>
     <string name="seizealert_motto">A Seizure Detection and Notification System</string>
     <string name="settings_button">Settings Button</string>
+    <string name="title_activity_location_smstest">LocationSMStest</string>
 
 </resources>

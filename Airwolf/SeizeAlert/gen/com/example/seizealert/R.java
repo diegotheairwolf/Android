@@ -38,53 +38,57 @@ public final class R {
         public static final int textView=0x7f0a0001;
     }
     public static final class layout {
-        public static final int activity_welcome=0x7f030000;
-        public static final int main=0x7f030001;
+        public static final int activity_location_smstest=0x7f030000;
+        public static final int activity_welcome=0x7f030001;
+        public static final int main=0x7f030002;
     }
     public static final class menu {
-        public static final int settings=0x7f090000;
-        public static final int welcome=0x7f090001;
+        public static final int location_smstest=0x7f090000;
+        public static final int settings=0x7f090001;
+        public static final int welcome=0x7f090002;
     }
     public static final class string {
         public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
         public static final int hello_world=0x7f050002;
-        public static final int pref_add_contact=0x7f050018;
-        public static final int pref_bluetooth=0x7f05001b;
-        public static final int pref_default_display_name=0x7f05000c;
-        public static final int pref_delete_contact=0x7f050019;
-        public static final int pref_description_social_recommendations=0x7f05000a;
-        public static final int pref_edit_contacts=0x7f050017;
+        public static final int pref_add_contact=0x7f050019;
+        public static final int pref_bluetooth=0x7f05001c;
+        public static final int pref_default_display_name=0x7f05000d;
+        public static final int pref_delete_contact=0x7f05001a;
+        public static final int pref_description_social_recommendations=0x7f05000b;
+        public static final int pref_edit_contacts=0x7f050018;
+        public static final int pref_gps=0x7f05001d;
         /**  Example settings for Bluetooth 
          */
-        public static final int pref_header_bluetooth=0x7f05001a;
+        public static final int pref_header_connectivity=0x7f05001b;
         /**  Example settings for Contacts 
          */
-        public static final int pref_header_contacts=0x7f050016;
+        public static final int pref_header_contacts=0x7f050017;
         /**  Example settings for Data & Sync 
          */
-        public static final int pref_header_data_sync=0x7f05000e;
+        public static final int pref_header_data_sync=0x7f05000f;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f050008;
+        public static final int pref_header_general=0x7f050009;
         /**  Example settings for Notifications 
          */
-        public static final int pref_header_notifications=0x7f050011;
-        public static final int pref_ringtone_silent=0x7f050014;
-        public static final int pref_title_add_friends_to_messages=0x7f05000d;
-        public static final int pref_title_display_name=0x7f05000b;
-        public static final int pref_title_new_message_notifications=0x7f050012;
-        public static final int pref_title_ringtone=0x7f050013;
-        public static final int pref_title_social_recommendations=0x7f050009;
-        public static final int pref_title_sync_frequency=0x7f05000f;
-        public static final int pref_title_system_sync_settings=0x7f050010;
-        public static final int pref_title_vibrate=0x7f050015;
+        public static final int pref_header_notifications=0x7f050012;
+        public static final int pref_ringtone_silent=0x7f050015;
+        public static final int pref_title_add_friends_to_messages=0x7f05000e;
+        public static final int pref_title_display_name=0x7f05000c;
+        public static final int pref_title_new_message_notifications=0x7f050013;
+        public static final int pref_title_ringtone=0x7f050014;
+        public static final int pref_title_social_recommendations=0x7f05000a;
+        public static final int pref_title_sync_frequency=0x7f050010;
+        public static final int pref_title_system_sync_settings=0x7f050011;
+        public static final int pref_title_vibrate=0x7f050016;
         public static final int seizealert_logo=0x7f050003;
         public static final int seizealert_motto=0x7f050004;
         public static final int settings_button=0x7f050005;
-        public static final int title_activity_locationsms=0x7f050007;
-        public static final int title_activity_settings=0x7f050006;
+        public static final int title_activity_location_smstest=0x7f050006;
+        public static final int title_activity_locationsms=0x7f050008;
+        public static final int title_activity_settings=0x7f050007;
     }
     public static final class style {
         /** 
@@ -115,7 +119,7 @@ public final class R {
         public static final int AppTheme=0x7f080001;
     }
     public static final class xml {
-        public static final int pref_bluetooth=0x7f040000;
+        public static final int pref_connectivity=0x7f040000;
         public static final int pref_contacts=0x7f040001;
         public static final int pref_data_sync=0x7f040002;
         public static final int pref_general=0x7f040003;
