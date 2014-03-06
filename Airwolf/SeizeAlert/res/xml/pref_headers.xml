@@ -16,8 +16,8 @@
         android:fragment="com.example.seizealert.SettingsActivity$ContactsPreferenceFragment"
         android:title="@string/pref_header_contacts" />
     <header
-        android:fragment="com.example.seizealert.SettingsActivity$BluetoothPreferenceFragment"
-        android:title="@string/pref_header_bluetooth" />
+        android:fragment="com.example.seizealert.SettingsActivity$ConnectivityPreferenceFragment"
+        android:title="@string/pref_header_connectivity" />
 
     <!-- These settings headers are only used on tablets. -->
 
@@ -34,7 +34,7 @@
         android:fragment="com.example.seizealert.Settings$ContactsPreferenceFragment"
         android:title="@string/pref_header_contacts" />
     <header
-        android:fragment="com.example.seizealert.Settings$BluetoothPreferenceFragment"
-        android:title="@string/pref_header_bluetooth" />
+        android:fragment="com.example.seizealert.Settings$ConnectivityPreferenceFragment"
+        android:title="@string/pref_header_connectivity" />
 
 </preference-headers>

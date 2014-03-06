@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <Preference android:title="@string/pref_bluetooth" 
+        		android:key="bluetooth">
+    	<intent android:action="android.settings.BLUETOOTH_SETTINGS" />
+    </Preference>
+    
+    <Preference android:title="@string/pref_gps" 
+        		android:key="gps">
+    	<!-- <intent android:action="android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS" /> -->
+    </Preference>
+
+</PreferenceScreen>

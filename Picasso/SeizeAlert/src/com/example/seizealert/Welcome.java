@@ -28,6 +28,7 @@ public class Welcome extends Activity {
 	private static final UUID SEIZE_ALERT_APP_UUID = UUID.fromString("5f60123d-353f-421f-9882-1a3a71875a0e");
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     private PebbleKit.PebbleDataLogReceiver mDataLogReceiver = null;
+    private static final int GET_SMS_LOC_REQUEST = 1; //The request code
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,10 +111,20 @@ public class Welcome extends Activity {
             	event = SeizeAlert.fromInt(tag.intValue()).getName();
             	if ( event.equals("fall") ){
             		displayAlertMessage("Alert!!!", "Did you fall?");
-            		sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
+            		
+            		Intent intent = new Intent(context, LocationSMS.class);
+                    startActivity(intent);
+                    
+            		//sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
+            		
+            		
             	} else if ( event.equals("seizure") ){
             		displayAlertMessage("Alert!!!", "Did you have a seizure?");
-            		sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
+            		
+            		Intent intent = new Intent(context, LocationSMS.class);
+                    startActivity(intent);
+                    
+            		//sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
             	}
             	
             	handler.post(new Runnable() {
