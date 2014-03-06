@@ -1,2 +1,2 @@
 eclipse.preferences.version=1
-task-tag-projects-already-scanned=SMS
+task-tag-projects-already-scanned=SMS,GameActivity,GoogleAdsSampleActivity,HomeActivity,MainActivity,ModeSelectActivity,google-play-services_lib,SeizeAlert

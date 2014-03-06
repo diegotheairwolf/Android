@@ -1,0 +1,6 @@
+INDEX VERSION 1.126+/Users/andonimendoza/Development/ee-464k/Android/Doni/eclipse-workspace-again/.metadata/.plugins/org.eclipse.jdt.core
+2706090599.index
+567276407.index
+5947803.index
+3603122058.index
+4121888665.index
