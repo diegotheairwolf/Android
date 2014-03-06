@@ -20,7 +20,6 @@
         android:label="@string/app_name"
         android:logo="@drawable/ic_launcher"
         android:theme="@style/AppTheme" >
-        
         <activity
             android:name="com.example.seizealert.Welcome"
             android:label="@string/app_name" >
@@ -30,7 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name="com.example.seizealert.Settings"
             android:label="@string/title_activity_settings"
@@ -39,7 +37,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.seizealert.Welcome" />
         </activity>
-        
+
         <service
             android:name="com.example.seizealert.LocationSMS"
             android:label="@string/title_activity_locationsms"
@@ -47,6 +45,16 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.seizealert.Welcome" />
+        </service>
+        
+        <service
+            android:name="com.example.seizealert.PlaySound"
+            android:label="@string/title_activity_play_sound" >
+        </service>
+
+        <service
+            android:name="com.example.seizealert.PlayAudio"
+            android:label="@string/title_activity_play_audio" >
         </service>
         
     </application>

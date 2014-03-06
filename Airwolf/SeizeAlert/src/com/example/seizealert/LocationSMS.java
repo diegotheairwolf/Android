@@ -55,54 +55,55 @@ public class LocationSMS extends IntentService {
 			
 		sendSMS("5129445248", "Hello, the patient " + username + 
 				" is having a seizure at the location: " /*+ address*/);
+		
 			
 		Log.i("***** breakpoint", " ");
 	  }
 	  
 	//---sends an SMS message to another device---
-		private void sendSMS(String phoneNumber, String message){
-			SmsManager sms = SmsManager.getDefault();
-			sms.sendTextMessage(phoneNumber, null, message, null, null);
-		} 
+    private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+	}
 		
-		// Gets the location coordinates and translates them into GeoCoordinates
-		private String getAddress() {
+	// Gets the location coordinates and translates them into GeoCoordinates
+	private String getAddress() {
+		
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 			
-			LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-			
-		    locationManager.requestLocationUpdates(
-		    		LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
-		    	        @Override
-		    	        public void onStatusChanged(String provider, int status, Bundle extras) {
-		    	        }
-		    	        @Override
-		    	        public void onProviderEnabled(String provider) {
-		    	        }
-		    	        @Override
-		    	        public void onProviderDisabled(String provider) {
-		    	        }
-		    	        @Override
-		    	        public void onLocationChanged(final Location location) {
-		    	        	Log.i("***** location changed", "" + location.getLatitude() + " " + location.getLongitude());
-		    	        	Log.i("", "");
-		    	        }
-		    		});
+	    locationManager.requestLocationUpdates(
+	    		LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
+	    	        @Override
+	    	        public void onStatusChanged(String provider, int status, Bundle extras) {
+		    	    }
+		    	    @Override
+		    	    public void onProviderEnabled(String provider) {
+		    	    }
+		    	    @Override
+		    	    public void onProviderDisabled(String provider) {
+		    	    }
+		    	    @Override
+		    	    public void onLocationChanged(final Location location) {
+		    	       	Log.i("***** location changed", "" + location.getLatitude() + " " + location.getLongitude());
+		    	       	Log.i("", "");
+		    	    }
+		    	});
 		    
-			Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		Location loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			
-			Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-			List<Address> addresses = null;
+		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+		List<Address> addresses = null;
 			
-			try {
-				addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+			addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 			
-			String str = addresses.get(0).getAddressLine(0);
-			Log.i("***** address:", str);
-			return str;
+		String str = addresses.get(0).getAddressLine(0);
+		Log.i("***** address:", str);
+		return str;
 		}
 		
 	}

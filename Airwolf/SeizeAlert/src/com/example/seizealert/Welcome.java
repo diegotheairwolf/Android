@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class Welcome extends Activity {
 	private static final UUID SEIZE_ALERT_APP_UUID = UUID.fromString("5f60123d-353f-421f-9882-1a3a71875a0e");
@@ -112,8 +113,32 @@ public class Welcome extends Activity {
             	if ( event.equals("fall") ){
             		displayAlertMessage("Alert!!!", "Did you fall?");
             		
-            		Intent intent = new Intent(context, LocationSMS.class);
-                    startService(intent);
+            		// Location SMS
+            		Intent intentlocationsms = new Intent(context, LocationSMS.class);
+                    startService(intentlocationsms);
+                    
+                    // Play Sound
+                    Intent intentplaysound = new Intent(context, PlaySound.class);
+                    startService(intentplaysound);
+                    
+                    // Play Audio
+                    Intent intentplayaudio = new Intent(context, PlayAudio.class);
+                    startService(intentplayaudio);
+                    
+                    // Email
+                    /*
+                    Intent i = new Intent(Intent.ACTION_SEND);
+            		i.setType("message/rfc822");
+            		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"diego.ms90@gmail.com"});
+            		i.putExtra(Intent.EXTRA_SUBJECT, "SeizeAlert");
+            		i.putExtra(Intent.EXTRA_TEXT   , "Hello, the patient " + 
+            				" is having a seizure at the location: ");
+            		try {
+            		    startActivity(Intent.createChooser(i, "Send mail..."));
+            		} catch (android.content.ActivityNotFoundException ex) {
+            		    Toast.makeText(Welcome.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+            		}
+            		*/
                     
             		//sendSMS("5126690402", "Hello, the patient XXX XXX has fallen at Y Location");
             		
@@ -121,9 +146,33 @@ public class Welcome extends Activity {
             	} else if ( event.equals("seizure") ){
             		displayAlertMessage("Alert!!!", "Did you have a seizure?");
             		
-            		Intent intent = new Intent(context, LocationSMS.class);
-                    startService(intent);
+            		// Location SMS
+            		Intent intentlocationsms = new Intent(context, LocationSMS.class);
+                    startService(intentlocationsms);
                     
+                    // Play Sound
+                    Intent intentplaysound = new Intent(context, PlaySound.class);
+                    startService(intentplaysound);
+                    
+                    // Play Audio
+                    Intent intentplayaudio = new Intent(context, PlayAudio.class);
+                    startService(intentplayaudio);
+                    
+                    // Email
+                    /*
+            		Intent i = new Intent(Intent.ACTION_SEND);
+            		i.setType("message/rfc822");
+            		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"diego.ms90@gmail.com"});
+            		i.putExtra(Intent.EXTRA_SUBJECT, "SeizeAlert");
+            		i.putExtra(Intent.EXTRA_TEXT   , "Hello, the patient " + 
+            				" is having a seizure at the location: ");
+            		try {
+            		    startActivity(Intent.createChooser(i, "Send mail..."));
+            		} catch (android.content.ActivityNotFoundException ex) {
+            		    Toast.makeText(Welcome.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+            		}
+            		*/
+            		
             		//sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
             	}
             	
