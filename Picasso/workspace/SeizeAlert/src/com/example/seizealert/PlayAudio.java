@@ -52,5 +52,9 @@ public class PlayAudio extends IntentService {
       mp.stop();
   }
   
-  
+  @Override  
+  public void onDestroy() {  
+        super.onDestroy();
+        Log.i("here", "PlayAudio Service ends here...");
+  }
 }

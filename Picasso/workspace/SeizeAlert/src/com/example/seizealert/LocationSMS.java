@@ -104,6 +104,11 @@ public class LocationSMS extends IntentService {
 		String str = addresses.get(0).getAddressLine(0);
 		Log.i("***** address:", str);
 		return str;
-		}
-		
 	}
+	
+	@Override  
+    public void onDestroy() {  
+          super.onDestroy();  
+          Log.i("here", "SMS Service ends here...");
+    }	
+}
