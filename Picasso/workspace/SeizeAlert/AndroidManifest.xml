@@ -58,6 +58,11 @@
             android:label="@string/title_activity_play_audio" >
         </service>
         
+        <service 
+            android:name="PlayAlert"  
+            android:enabled="true">            
+        </service>
+        
     </application>
 
 </manifest>
