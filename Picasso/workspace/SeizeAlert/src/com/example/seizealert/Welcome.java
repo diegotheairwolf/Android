@@ -69,6 +69,11 @@ public class Welcome extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		// Open SeizeAlert Application on the Pebble (if available)
+		if (PebbleKit.isWatchConnected(this)){
+			PebbleKit.startAppOnPebble(this, SEIZE_ALERT_APP_UUID);
+		}
+		
 		//set up notitle 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  
 		//set up full screen
@@ -127,7 +132,7 @@ public class Welcome extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		// Stop animation if app goes in background
+		// Stop animation if application goes in background
 		seize_alert_logo.clearAnimation();
 		
 		// Handle Pebble data logging
