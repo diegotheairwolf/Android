@@ -58,6 +58,7 @@ public class Welcome extends Activity {
 	private String email_seizure_body = new String(" has just had a seizure. ");
 	private String email_end = new String("Please try to communicate with this person immediately and make sure he/she is fine.");
 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -74,6 +75,7 @@ public class Welcome extends Activity {
 		playSound(R.raw.welcome);
 	}
 
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -81,6 +83,7 @@ public class Welcome extends Activity {
 		return true;
 	}
 
+	
 	@SuppressLint("NewApi")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -95,18 +98,18 @@ public class Welcome extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	
 	public void displaySettings(View view ) {
 		Intent intent = new Intent(this, Settings.class);
 		startActivity(intent);
 	}
 
 
-
-
 	/*
 	 ********************* Here starts the Data Logging handlers *********************
 	 */
 
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
