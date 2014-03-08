@@ -29,7 +29,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.media.MediaPlayer;
 
@@ -48,6 +52,8 @@ public class Welcome extends Activity {
 	private PebbleKit.PebbleDataLogReceiver mDataLogReceiver = null;
 	private static final int GET_SMS_LOC_REQUEST = 1; //The request code
 	private MediaPlayer mp = null;
+	ImageView seize_alert_logo;
+	TextView seize_alert_motto;
 
 	// Automatic email vars
 	private static final String username = "seizealert@gmail.com";
@@ -73,6 +79,14 @@ public class Welcome extends Activity {
 
 		// Sound welcome song
 		playSound(R.raw.welcome);
+		
+		// Logo fade in
+		seize_alert_logo = (ImageView)findViewById(R.id.seize_alert_logo);
+		seize_alert_motto = (TextView)findViewById(R.id.seize_alert_motto);	      
+	    Animation animationFadeIn = AnimationUtils.loadAnimation(this, R.anim.fadein);
+	    Animation animationFadeInSlower = AnimationUtils.loadAnimation(this, R.anim.fadein_slower);
+	    seize_alert_logo.startAnimation(animationFadeIn);
+	    seize_alert_motto.startAnimation(animationFadeInSlower);
 	}
 
 	
@@ -113,6 +127,10 @@ public class Welcome extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		// Stop animation if app goes in background
+		seize_alert_logo.clearAnimation();
+		
+		// Handle Pebble data logging
 		if (mDataLogReceiver != null) {
 			unregisterReceiver(mDataLogReceiver);
 			mDataLogReceiver = null;
