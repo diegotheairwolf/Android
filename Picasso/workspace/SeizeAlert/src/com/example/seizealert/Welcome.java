@@ -116,11 +116,7 @@ public class Welcome extends Activity {
             		// Location SMS
             		Intent intentlocationsms = new Intent(context, LocationSMS.class);
                     startService(intentlocationsms);
-                    
-                    // Play Sound
-                    Intent intentplaysound = new Intent(context, PlaySound.class);
-                    startService(intentplaysound);
-                    
+                   
                     // Play Audio
                     Intent intentplayaudio = new Intent(context, PlayAudio.class);
                     startService(intentplayaudio);
@@ -150,14 +146,33 @@ public class Welcome extends Activity {
             		Intent intentlocationsms = new Intent(context, LocationSMS.class);
                     startService(intentlocationsms);
                     
-                    // Play Sound
-                    Intent intentplaysound = new Intent(context, PlaySound.class);
-                    startService(intentplaysound);
-                    
                     // Play Audio
                     Intent intentplayaudio = new Intent(context, PlayAudio.class);
                     startService(intentplayaudio);
                     
+                    // Email
+                    /*
+            		Intent i = new Intent(Intent.ACTION_SEND);
+            		i.setType("message/rfc822");
+            		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"diego.ms90@gmail.com"});
+            		i.putExtra(Intent.EXTRA_SUBJECT, "SeizeAlert");
+            		i.putExtra(Intent.EXTRA_TEXT   , "Hello, the patient " + 
+            				" is having a seizure at the location: ");
+            		try {
+            		    startActivity(Intent.createChooser(i, "Send mail..."));
+            		} catch (android.content.ActivityNotFoundException ex) {
+            		    Toast.makeText(Welcome.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+            		}
+            		*/
+            		
+            		//sendSMS("5126690402", "Hello, the patient XXX XXX had a seizure at Y Location");
+            	} else if ( event.equals("countdown") ){
+            		displayAlertMessage("Alert!!!", "Is this a false alert?");
+            		
+                    // Play Sound
+                    Intent intentplaysound = new Intent(context, PlaySound.class);
+                    startService(intentplaysound);
+                                        
                     // Email
                     /*
             		Intent i = new Intent(Intent.ACTION_SEND);
@@ -199,6 +214,7 @@ public class Welcome extends Activity {
 	private static enum SeizeAlert {
         FALL(0x5),
         SEIZURE(0xd),
+        COUNTDOWN(0xe),
         UNKNOWN(0xff);
 
         public final int id;
