@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.telephony.SmsManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,6 +55,7 @@ public class Welcome extends Activity {
 	private MediaPlayer mp = null;
 	ImageView seize_alert_logo;
 	TextView seize_alert_motto;
+	TextView pebble_status;
 
 	// Automatic email vars
 	private static final String username = "seizealert@gmail.com";
@@ -92,6 +94,16 @@ public class Welcome extends Activity {
 	    Animation animationFadeInSlower = AnimationUtils.loadAnimation(this, R.anim.fadein_slower);
 	    seize_alert_logo.startAnimation(animationFadeIn);
 	    seize_alert_motto.startAnimation(animationFadeInSlower);
+	    
+	    // Update status of Pebble (connected/disconnected)
+	 	pebble_status = (TextView) findViewById(R.id.pebble_status);
+	 	if (PebbleKit.isWatchConnected(this)){
+	 		pebble_status.setText("  Pebble Status: Connected  ");
+	 		pebble_status.setBackgroundColor(Color.parseColor("#99FF66"));
+	 	} else {
+	 		pebble_status.setText("  Pebble Status: Disconnected  ");
+	 		pebble_status.setBackgroundColor(Color.parseColor("#FF9966"));
+	 	}
 	}
 
 	

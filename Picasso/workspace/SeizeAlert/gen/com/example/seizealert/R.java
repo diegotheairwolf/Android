@@ -36,7 +36,8 @@ public final class R {
         public static final int seizealert_logo=0x7f020002;
     }
     public static final class id {
-        public static final int action_settings=0x7f0c0003;
+        public static final int action_settings=0x7f0c0004;
+        public static final int pebble_status=0x7f0c0003;
         public static final int seize_alert_logo=0x7f0c0000;
         public static final int seize_alert_motto=0x7f0c0002;
         public static final int settingsButton=0x7f0c0001;

@@ -39,4 +39,14 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textStyle="italic" />
 
+    <TextView
+        android:id="@+id/pebble_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/seize_alert_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="76dp"
+        android:text="Pebble Status:"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
 </RelativeLayout>
