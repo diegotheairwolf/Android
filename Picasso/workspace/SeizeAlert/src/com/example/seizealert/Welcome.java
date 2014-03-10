@@ -14,6 +14,7 @@ import com.google.common.primitives.UnsignedInteger;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -241,6 +242,10 @@ public class Welcome extends Activity {
 					// Play Sound
 					Intent intentplaysound = new Intent(context, PlaySound.class);
 					startService(intentplaysound);
+					
+					// Vibrate for 1500 milliseconds
+					Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+					v.vibrate(1500);
 				}
 			}            
 		};
