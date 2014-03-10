@@ -15,4 +15,8 @@
 <fullyQualifiedTypeName name="android.view.animation.AnimationUtils"/>
 <fullyQualifiedTypeName name="android.widget.TextView"/>
 <fullyQualifiedTypeName name="android.graphics.Color"/>
+<fullyQualifiedTypeName name="android.content.BroadcastReceiver"/>
+<fullyQualifiedTypeName name="android.util.Log"/>
+<fullyQualifiedTypeName name="com.getpebble.android.kit.PebbleKit.FirmwareVersionInfo"/>
+<fullyQualifiedTypeName name="android.os.Vibrator"/>
 </qualifiedTypeNameHistroy>

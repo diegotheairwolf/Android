@@ -2,6 +2,8 @@
 
 1.
 Contact List				- 
+
+NOTE:
 Research if we can use an existing Preference thing. 
 PreferenceList is not the one we need. 
 If we can't find one, research how to make our custom Preference.
@@ -21,6 +23,7 @@ Sound notifications			- DONE
 Help alert (need to record custom)	- 
 Welcome sound				- DONE
 Countdown alert				- DONE
+	Countdown vibration		- DONE 
 
 
 
@@ -28,6 +31,8 @@ Countdown alert				- DONE
 Email Notifications			- DONE
 	Automatic Email notification	- DONE
 	Create SeizeAlert custom email 	- DONE
+
+
 
 5.
 Can data-logging work on background?	- 
@@ -41,4 +46,4 @@ Send emails when app on background	-
 6.
 User's Location				-
 	Text location for the user?	-
-	Embed G-map?			-
+	Embed G-map URL?		- DONE
