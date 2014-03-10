@@ -39,6 +39,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 
 import javax.mail.Message;
@@ -50,16 +54,25 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class Welcome extends Activity {
+public class Welcome extends Activity implements LocationListener {
+	
 	private static final UUID SEIZE_ALERT_APP_UUID = UUID.fromString("5f60123d-353f-421f-9882-1a3a71875a0e");
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 	private PebbleKit.PebbleDataLogReceiver mDataLogReceiver = null;
 	private static final int GET_SMS_LOC_REQUEST = 1; //The request code
 	private MediaPlayer mp = null;
+	
+	// Welcome activity text views and images
 	private ImageView seize_alert_logo;
 	private TextView seize_alert_motto;
 	private TextView pebble_status;
 	private TextView pebble_app_status;
+	
+	// GPS coords 
+	private double Lat;
+	private double Lng;
+	private LocationManager locationManager;
+	private String provider;
 
 	// Automatic email/SMS strings
 	private static final String username = "seizealert@gmail.com";
@@ -71,8 +84,6 @@ public class Welcome extends Activity {
 	private String alert_location = new String("at the following location: http://maps.google.com/?q=");
 	private String alert_end = new String(" Please try to communicate with this person " +
 			"immediately and make sure he/she is fine.");
-	private double Lat = 0.00;
-	private double Lng = 0.00;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +144,23 @@ public class Welcome extends Activity {
 	 	seize_alert_motto.startAnimation(animationFadeInSlower);
 	 	pebble_status.startAnimation(animationFadeIn);
 	 	pebble_app_status.startAnimation(animationFadeIn);
+	 	
+	 	// Get the location manager
+	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	    
+	    // Define the criteria how to select the location in provider -> use default
+	    Criteria criteria = new Criteria();
+	    provider = locationManager.getBestProvider(criteria, false);
+	    Log.i("GPS provider", "Selected provider" + provider);
+	    Location location = locationManager.getLastKnownLocation(provider);
+
+	    // Initialize the location fields
+	    if (location != null) {
+	    	onLocationChanged(location);
+	    } else {
+	    	Lat = 0.0;
+	    	Lng = 0.0;
+	    }
 	}
 
 	
@@ -184,6 +212,9 @@ public class Welcome extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		// Request updates at startup
+		locationManager.requestLocationUpdates(provider, 0, 0, this);
 
 		mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
 			String event = new String();
@@ -197,7 +228,7 @@ public class Welcome extends Activity {
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 				String username = prefs.getString("username", "");
 				if ( event.equals("fall") ){
-					displayAlertMessage("Alert!!!", "Did you fall?");
+					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to your all your contacts.");
 
 					// Location SMS
 					Intent intentlocationsms = new Intent(context, LocationSMS.class);
@@ -213,11 +244,11 @@ public class Welcome extends Activity {
 							alert_fall_body + alert_location + Lat + "," + Lng + "." + alert_end);
 
 					// SMS
-					//sendSMS("5126690402", alert_start + username + alert_fall_body + 
-							//alert_location + Lat + "," + Lng + "." + alert_end);
+					sendSMS("5126690402", alert_start + username + alert_fall_body + 
+							alert_location + Lat + "," + Lng + ". " + alert_end);
 
 				} else if ( event.equals("seizure") ){
-					displayAlertMessage("Alert!!!", "Did you have a seizure?");
+					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to your all your contacts.");
 
 					// Location SMS
 					Intent intentlocationsms = new Intent(context, LocationSMS.class);
@@ -230,14 +261,14 @@ public class Welcome extends Activity {
 					// Email
 					// location URL composed as http://maps.google.com/?q=<lat>,<lng>
 					sendMail("kratos9000@hotmail.com", alert_heading, alert_start + username + 
-							alert_seizure_body + alert_location + alert_end);
+							alert_seizure_body + alert_location + Lat + "," + Lng + "." + alert_end);
 
 					// SMS
-					//sendSMS("5126690402", alert_start + username + alert_seizure_body + 
-							//alert_location + Lat + "," + Lng + "." + alert_end);
+					sendSMS("5126690402", alert_start + username + alert_seizure_body + 
+							alert_location + Lat + "," + Lng + ". " + alert_end);
 
 				} else if ( event.equals("countdown") ){
-					displayAlertMessage("Alert!!!", "Is this a false alert?");
+					displayAlertMessage("Alert!!!", "Is this a false alert? Please press the SELECT button on your Pebble.");
 
 					// Play Sound
 					Intent intentplaysound = new Intent(context, PlaySound.class);
@@ -397,5 +428,35 @@ public class Welcome extends Activity {
 			}
 			return null;
 		}
+	}
+	
+	
+	@Override
+	public void onLocationChanged(Location location) {
+	    Lat = (location.getLatitude());
+	    Lng = (location.getLongitude());
+	    String lt = String.valueOf(Lat);
+	    String ln = String.valueOf(Lng);
+	    Log.i("UPDATING COORDS", "Latitude = " + lt + ", Longitude" + ln);
+	}
+	
+	
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+	    // TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void onProviderEnabled(String provider) {
+	    Toast.makeText(this, "Enabled new provider " + provider,
+	        Toast.LENGTH_SHORT).show();
+
+	}
+	
+	@Override
+	public void onProviderDisabled(String provider) {
+	    Toast.makeText(this, "Disabled provider " + provider,
+	        Toast.LENGTH_SHORT).show();
 	}
 }

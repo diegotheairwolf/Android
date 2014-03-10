@@ -19,4 +19,8 @@
 <fullyQualifiedTypeName name="android.util.Log"/>
 <fullyQualifiedTypeName name="com.getpebble.android.kit.PebbleKit.FirmwareVersionInfo"/>
 <fullyQualifiedTypeName name="android.os.Vibrator"/>
+<fullyQualifiedTypeName name="android.location.LocationManager"/>
+<fullyQualifiedTypeName name="android.location.LocationListener"/>
+<fullyQualifiedTypeName name="android.location.Criteria"/>
+<fullyQualifiedTypeName name="android.location.Location"/>
 </qualifiedTypeNameHistroy>

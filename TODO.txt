@@ -45,5 +45,6 @@ Send emails when app on background	-
 
 6.
 User's Location				-
-	Text location for the user?	-
+	Text location for the user?	- DONE
 	Embed G-map URL?		- DONE
+	Test location services		- 

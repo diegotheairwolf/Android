@@ -6,4 +6,3 @@ INDEX VERSION 1.126+/home/pablo/Group-Dev/Android/Picasso/workspace/.metadata/.p
 789449786.index
 796953727.index
 4121888665.index
-1265949999.index
