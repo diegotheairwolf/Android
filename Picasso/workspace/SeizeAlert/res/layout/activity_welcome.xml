@@ -40,13 +40,23 @@
         android:textStyle="italic" />
 
     <TextView
+        android:id="@+id/pebble_app_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/settingsButton"
+        android:layout_alignRight="@+id/settingsButton"
+        android:layout_marginBottom="45dp"
+        android:text="@string/pebble_app_status"
+        android:textSize="10sp" />
+
+    <TextView
         android:id="@+id/pebble_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/seize_alert_logo"
+        android:layout_above="@+id/pebble_app_status"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="76dp"
-        android:text="Pebble Status:"
+        android:layout_marginBottom="29dp"
+        android:text="@string/pebble_status"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
