@@ -10,5 +10,7 @@
     <string name="title_activity_location_smstest">LocationSMStest</string>
     <string name="title_activity_play_sound">PlaySound</string>
     <string name="title_activity_play_audio">PlayAudio</string>
+    <string name="pebble_status">Pebble Status: Error</string>
+    <string name="pebble_app_status">***NOTE: please make sure SeizeAlert app is installed on your Pebble Smartwatch.</string>
 
 </resources>

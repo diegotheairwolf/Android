@@ -48,3 +48,8 @@ User's Location				-
 	Text location for the user?	- DONE
 	Embed G-map URL?		- DONE
 	Test location services		- 
+
+
+7. Use the Android’s pop up icon to	-
+	cancel countdown (use as
+	false positive)

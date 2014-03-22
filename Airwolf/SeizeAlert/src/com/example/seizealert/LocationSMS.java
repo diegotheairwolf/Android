@@ -24,6 +24,7 @@ public class LocationSMS extends IntentService {
 	
 	
 		public int onStartCommand(Intent intent, int flags, int startId) {
+			Log.i("here", "SMS Service starts here...");
 			Toast.makeText(this, "SMS Sent", Toast.LENGTH_SHORT).show();
 		    return super.onStartCommand(intent,flags,startId);
 		}
@@ -44,7 +45,7 @@ public class LocationSMS extends IntentService {
 	  @Override
 	  protected void onHandleIntent(Intent intent) {
 		// Get current address
-		// String address = getAddress();
+		String address = getAddress();
 		  
 			
 		// Get username currently on preferences
@@ -54,7 +55,7 @@ public class LocationSMS extends IntentService {
 		// Use the default value if username is null.	
 			
 		sendSMS("5129445248", "Hello, the patient " + username + 
-				" is having a seizure at the location: " /*+ address*/);
+				" is having a seizure at the location: " + address);
 		
 			
 		Log.i("***** breakpoint", " ");
@@ -104,6 +105,11 @@ public class LocationSMS extends IntentService {
 		String str = addresses.get(0).getAddressLine(0);
 		Log.i("***** address:", str);
 		return str;
-		}
-		
 	}
+	
+	@Override  
+    public void onDestroy() {  
+          super.onDestroy();  
+          Log.i("here", "SMS Service ends here...");
+    }	
+}

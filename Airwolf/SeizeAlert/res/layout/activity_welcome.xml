@@ -9,24 +9,13 @@
     tools:context=".Welcome" >
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/seize_alert_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:src="@drawable/seizealert_logo" 
         android:contentDescription="@string/seizealert_logo"/>
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/imageView1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="14dp"
-        android:text="@string/seizealert_motto"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textStyle="italic" />
     
     <ImageButton
         android:layout_width="wrap_content"
@@ -39,5 +28,35 @@
         android:layout_alignParentEnd="true"
         android:onClick="displaySettings"
         android:contentDescription="@string/settings_button"/>
+
+    <TextView
+        android:id="@+id/seize_alert_motto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/seize_alert_logo"
+        android:layout_centerHorizontal="true"
+        android:text="@string/seizealert_motto"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/pebble_app_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/settingsButton"
+        android:layout_alignRight="@+id/settingsButton"
+        android:layout_marginBottom="45dp"
+        android:text="@string/pebble_app_status"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/pebble_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/pebble_app_status"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="29dp"
+        android:text="@string/pebble_status"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
