@@ -116,17 +116,14 @@ public class Welcome extends Activity {
             		// Location SMS
             		Intent intentlocationsms = new Intent(context, LocationSMS.class);
                     startService(intentlocationsms);
-                    stopService(intentlocationsms);
                     
                     // Play Sound
                     Intent intentplaysound = new Intent(context, PlaySound.class);
                     startService(intentplaysound);
-                    stopService(intentplaysound);
                     
                     // Play Audio
                     Intent intentplayaudio = new Intent(context, PlayAudio.class);
                     startService(intentplayaudio);
-                    stopService(intentplayaudio);
                     
                     // Email
                     /*
@@ -152,7 +149,6 @@ public class Welcome extends Activity {
             		// Location SMS
             		Intent intentlocationsms = new Intent(context, LocationSMS.class);
                     startService(intentlocationsms);
-                    
                     
                     // Play Sound
                     Intent intentplaysound = new Intent(context, PlaySound.class);
