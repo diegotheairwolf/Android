@@ -59,6 +59,15 @@ public class Settings extends PreferenceActivity {
 		            return true;
 		        }
 		});
+		
+		Preference button = (Preference)findPreference("button");
+		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference arg0) {
+				//code for what you want it to do 
+				return true;
+				}
+			});
 	}
 
 	/**
