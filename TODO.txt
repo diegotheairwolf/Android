@@ -15,3 +15,15 @@ Change XXXXXX to UserName		— DONE
 shortened url with pinned location
 send email as well
 sound notification
+
+
+
+
+3.
+research how to kill a service
+
+should it be service/intentservice
+
+
+make a stack with contacts, calling sms service on each one, and then destroy before
+getting next contact? or is there a listener so we know when to call kill?

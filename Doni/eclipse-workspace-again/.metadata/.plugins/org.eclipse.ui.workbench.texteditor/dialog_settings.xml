@@ -13,11 +13,16 @@
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="LocationSMS" key="selection"/>
+		<item value="startService" key="selection"/>
 		<list key="findhistory">
+			<item value="startservice"/>
+			<item value="oncr"/>
+			<item value="on"/>
+			<item value="oncreate"/>
+			<item value="onDes"/>
+			<item value="ondestr"/>
+			<item value="playsound"/>
 			<item value="locationsms"/>
-			<item value="getad"/>
-			<item value="smsmanager"/>
 		</list>
 		<list key="replacehistory">
 		</list>
