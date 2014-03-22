@@ -1,21 +1,23 @@
 
 
-
 1.
+Contact List				- 
+
+NOTE:
 Research if we can use an existing Preference thing. 
 PreferenceList is not the one we need. 
 If we can't find one, research how to make our custom Preference.
-It should just be 
-Maybe just dynamically add checkboxespreference, each of which is a contact info
+It should just be maybe just dynamically add checkboxespreference, each of which is a contact info.
+
+
 
 2.
-
-Change XXXXXX to UserName		— DONE
+UserName				- DONE
+	Change XXXXXX to username	- DONE
 	Save patient’s username		- DONE
 shortened url with pinned location
 send email as well
 sound notification
-
 
 
 
@@ -27,3 +29,32 @@ should it be service/intentservice
 
 make a stack with contacts, calling sms service on each one, and then destroy before
 getting next contact? or is there a listener so we know when to call kill?
+Sound notifications			- DONE
+Help alert (need to record custom)	- 
+Welcome sound				- DONE
+Countdown alert				- DONE
+	Countdown vibration		- DONE
+
+
+
+4.
+Email Notifications			- DONE
+	Automatic Email notification	- DONE
+	Create SeizeAlert custom email 	- DONE
+
+
+
+5.
+Can data-logging work on background?	- 
+	We need to find this out...
+Make sounds while app on background	-
+Send SMS when app on background		-
+Send emails when app on background	-
+
+
+
+6.
+User's Location				-
+	Text location for the user?	- DONE
+	Embed G-map URL?		- DONE
+	Test location services		-
