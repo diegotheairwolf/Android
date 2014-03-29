@@ -14,7 +14,7 @@ import android.widget.Toast;
 public class PlaySound extends IntentService {
     // originally from http://marblemice.blogspot.com/2010/04/generate-and-play-tone-in-android.html
     // and modified by Steve Pomeroy <steve@staticfree.info>
-    private final int duration = 5; // seconds
+    private final int duration = 10; // seconds
     private final int sampleRate = 8000;
     private final int numSamples = duration * sampleRate;
     private final double sample[] = new double[numSamples];

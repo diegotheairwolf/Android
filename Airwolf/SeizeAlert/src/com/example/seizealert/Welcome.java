@@ -61,6 +61,16 @@ public class Welcome extends Activity implements LocationListener {
 	private PebbleKit.PebbleDataLogReceiver mDataLogReceiver = null;
 	private static final int GET_SMS_LOC_REQUEST = 1; //The request code
 	private MediaPlayer mp = null;
+	private long[] vibPattern = { 0, 500, 500,
+									 500, 500,
+									 500, 500,
+									 500, 500,
+									 500, 500,
+									 500, 500,
+									 500, 500,
+									 500, 500,
+									 500, 500,
+									 500, 500};
 	
 	// Welcome activity text views and images
 	private ImageView seize_alert_logo;
@@ -270,13 +280,13 @@ public class Welcome extends Activity implements LocationListener {
 				} else if ( event.equals("countdown") ){
 					displayAlertMessage("Alert!!!", "Is this a false alert? Please press the SELECT button on your Pebble.");
 
-					// Play Sound
+					// Play Sound for 10 seconds
 					Intent intentplaysound = new Intent(context, PlaySound.class);
 					startService(intentplaysound);
 					
-					// Vibrate for 1500 milliseconds
+					// Vibrate for 10000 milliseconds - 10 seconds
 					Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-					v.vibrate(1500);
+					v.vibrate(vibPattern, -1);
 				}
 			}            
 		};
