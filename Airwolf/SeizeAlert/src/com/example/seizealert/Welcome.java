@@ -155,6 +155,8 @@ public class Welcome extends Activity implements LocationListener {
 	 	pebble_status.startAnimation(animationFadeIn);
 	 	pebble_app_status.startAnimation(animationFadeIn);
 	 	
+	 	
+	 	
 	 	// Get the location manager
 	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	    
@@ -287,6 +289,8 @@ public class Welcome extends Activity implements LocationListener {
 					// Vibrate for 10000 milliseconds - 10 seconds
 					Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
 					v.vibrate(vibPattern, -1);
+					
+					
 				}
 			}            
 		};
@@ -329,7 +333,6 @@ public class Welcome extends Activity implements LocationListener {
 	 * title - a string to be displayed as title of warning box.
 	 * mymessage - the message to be displayed on text box.
 	 */
-
 	public void displayAlertMessage(String title, String mymessage) {
 		new AlertDialog.Builder(this)
 		.setMessage(mymessage)
@@ -450,20 +453,17 @@ public class Welcome extends Activity implements LocationListener {
 	    Log.i("UPDATING COORDS", "Latitude = " + lt + ", Longitude" + ln);
 	}
 	
-	
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-	    // TODO Auto-generated method stub
-		
+	    // TODO Auto-generated method stub	
 	}
 	
 	@Override
 	public void onProviderEnabled(String provider) {
 	    Toast.makeText(this, "Enabled new provider " + provider,
 	        Toast.LENGTH_SHORT).show();
-
 	}
-	
+
 	@Override
 	public void onProviderDisabled(String provider) {
 	    Toast.makeText(this, "Disabled provider " + provider,
