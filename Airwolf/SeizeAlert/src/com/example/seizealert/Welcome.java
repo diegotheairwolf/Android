@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import com.example.seizealert.GPSTracker;
 import com.getpebble.android.kit.PebbleKit;
 import com.google.common.primitives.UnsignedInteger;
 
@@ -54,7 +55,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class Welcome extends Activity implements LocationListener {
+public class Welcome extends Activity /* implements LocationListener */{
 	
 	private static final UUID SEIZE_ALERT_APP_UUID = UUID.fromString("5f60123d-353f-421f-9882-1a3a71875a0e");
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
@@ -78,11 +79,18 @@ public class Welcome extends Activity implements LocationListener {
 	private TextView pebble_status;
 	private TextView pebble_app_status;
 	
+	/*
 	// GPS coords 
 	private double Lat;
 	private double Lng;
 	private LocationManager locationManager;
 	private String provider;
+	*/
+	
+	// GPSTracker class
+	GPSTracker gps;
+	public final static String EXTRA_LATITUDE = "com.example.seizealert.LATITUDE";
+	public final static String EXTRA_LONGITUDE = "com.example.seizealert.LONGITUDE";
 
 	// Automatic email/SMS strings
 	private static final String username = "seizealert@gmail.com";
@@ -156,7 +164,7 @@ public class Welcome extends Activity implements LocationListener {
 	 	pebble_app_status.startAnimation(animationFadeIn);
 	 	
 	 	
-	 	
+	 	/*
 	 	// Get the location manager
 	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	    
@@ -173,6 +181,8 @@ public class Welcome extends Activity implements LocationListener {
 	    	Lat = 0.0;
 	    	Lng = 0.0;
 	    }
+	    */
+	    
 	}
 
 	
@@ -215,8 +225,8 @@ public class Welcome extends Activity implements LocationListener {
 		
 		// Handle Pebble data logging
 		if (mDataLogReceiver != null) {
-			unregisterReceiver(mDataLogReceiver);
-			mDataLogReceiver = null;
+			//unregisterReceiver(mDataLogReceiver);
+			//mDataLogReceiver = null;
 		}
 	}
 
@@ -225,8 +235,9 @@ public class Welcome extends Activity implements LocationListener {
 	protected void onResume() {
 		super.onResume();
 		
+		
 		// Request updates at startup
-		locationManager.requestLocationUpdates(provider, 0, 0, this);
+		//locationManager.requestLocationUpdates(provider, 0, 0, this);
 
 		mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
 			String event = new String();
@@ -241,43 +252,93 @@ public class Welcome extends Activity implements LocationListener {
 				String username = prefs.getString("username", "");
 				if ( event.equals("fall") ){
 					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+					
+					// create class object
+			        gps = new GPSTracker(Welcome.this);
+			        
+			        // check if GPS enabled		
+			        if(gps.canGetLocation()){
+			        	
+			        	double latitude = gps.getLatitude();
+			        	double longitude = gps.getLongitude();
+			        	
+			        	// \n is for new line
+			        	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
+			        											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+			        	
+			        	// Email
+						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
-					// Location SMS
-					//Intent intentlocationsms = new Intent(context, LocationSMS.class);
-					//startService(intentlocationsms);
+						// SMS
+						String message = alert_start + username + alert_seizure_body + 
+								alert_location + latitude + "," + longitude + ". " + alert_end;
+						sendSMS("5129445248", message);
+						
+						// Location SMS
+						Intent intentlocationsmsfall = new Intent(context, LocationSMS.class);
+						intentlocationsmsfall.putExtra(EXTRA_LATITUDE, latitude);
+						intentlocationsmsfall.putExtra(EXTRA_LONGITUDE, longitude);
+						startService(intentlocationsmsfall);
+						
+			        }else{
+			        	// can't get location
+			        	// GPS or Network is not enabled
+			        	// Ask user to enable GPS/network in settings
+			        	gps.showSettingsAlert();
+			        }
+			        
 
 					// Play Audio
 					Intent intentplayaudio = new Intent(context, PlayAudio.class);
 					startService(intentplayaudio);
 
-					// Email
-					// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-					sendMail("kratos9000@hotmail.com", alert_heading, alert_start + username + 
-							alert_fall_body + alert_location + Lat + "," + Lng + "." + alert_end);
-
-					// SMS
-					sendSMS("5129445248", alert_start + username + alert_fall_body + 
-							alert_location + Lat + "," + Lng + ". " + alert_end);
+					
 
 				} else if ( event.equals("seizure") ){
 					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
 
-					// Location SMS
-					//Intent intentlocationsms = new Intent(context, LocationSMS.class);
-					//startService(intentlocationsms);
+					// create class object
+			        gps = new GPSTracker(Welcome.this);
+			        
+			        // check if GPS enabled		
+			        if(gps.canGetLocation()){
+			        	
+			        	double latitude = gps.getLatitude();
+			        	double longitude = gps.getLongitude();
+			        	
+			        	// \n is for new line
+			        	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
+			        											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+			        	// Email
+						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
+
+						// SMS
+						String message = alert_start + username + alert_seizure_body + 
+								alert_location + latitude + "," + longitude + ". " + alert_end;
+						sendSMS("5129445248", message);
+						
+						// Location SMS
+						Intent intentlocationsmsseizure = new Intent(context, LocationSMS.class);
+						intentlocationsmsseizure.putExtra(EXTRA_LATITUDE, latitude);
+						intentlocationsmsseizure.putExtra(EXTRA_LONGITUDE, longitude);
+						startService(intentlocationsmsseizure);
+						
+			        }else{
+			        	// can't get location
+			        	// GPS or Network is not enabled
+			        	// Ask user to enable GPS/network in settings
+			        	gps.showSettingsAlert();
+			        }
 
 					// Play Audio
 					Intent intentplayaudio = new Intent(context, PlayAudio.class);
 					startService(intentplayaudio);
 
-					// Email
-					// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-					sendMail("kratos9000@hotmail.com", alert_heading, alert_start + username + 
-							alert_seizure_body + alert_location + Lat + "," + Lng + "." + alert_end);
-
-					// SMS
-					sendSMS("5129445248", alert_start + username + alert_seizure_body + 
-							alert_location + Lat + "," + Lng + ". " + alert_end);
+					
 
 				} else if ( event.equals("countdown") ){
 					displayAlertMessage("Alert!!!", "Is this a false alert? Please press the SELECT button on your Pebble.");
@@ -351,7 +412,9 @@ public class Welcome extends Activity implements LocationListener {
 	 */  
 	private void sendSMS(String phoneNumber, String message){
 		SmsManager sms = SmsManager.getDefault();
+		Log.i("Before SMS", "Sending SMS");
 		sms.sendTextMessage(phoneNumber, null, message, null, null);
+		Log.i("After SMS", "SMS Sent");
 	}
 
 
@@ -378,6 +441,8 @@ public class Welcome extends Activity implements LocationListener {
 	 * Automatic Email Service
 	 */
 	private void sendMail(String email, String subject, String messageBody) {
+		Log.i("Email", "Before sending email");
+		
 		Session session = createSessionObject();
 
 		try {
@@ -390,6 +455,7 @@ public class Welcome extends Activity implements LocationListener {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		Log.i("Email", "After sending email");
 	}
 
 	private Message createMessage(String email, String subject, String messageBody, 
@@ -443,7 +509,7 @@ public class Welcome extends Activity implements LocationListener {
 		}
 	}
 	
-	
+	/*
 	@Override
 	public void onLocationChanged(Location location) {
 	    Lat = (location.getLatitude());
@@ -468,5 +534,5 @@ public class Welcome extends Activity implements LocationListener {
 	public void onProviderDisabled(String provider) {
 	    Toast.makeText(this, "Disabled provider " + provider,
 	        Toast.LENGTH_SHORT).show();
-	}
+	}*/
 }
