@@ -91,6 +91,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 	GPSTracker gps;
 	public final static String EXTRA_LATITUDE = "com.example.seizealert.LATITUDE";
 	public final static String EXTRA_LONGITUDE = "com.example.seizealert.LONGITUDE";
+	double latitude;
+	double longitude;
 
 	// Automatic email/SMS strings
 	private static final String username = "seizealert@gmail.com";
@@ -182,6 +184,24 @@ public class Welcome extends Activity /* implements LocationListener */{
 	    	Lng = 0.0;
 	    }
 	    */
+	 	
+	 	// create class object
+        gps = new GPSTracker(Welcome.this);
+	 	if(gps.canGetLocation()){
+        	
+        	latitude = gps.getLatitude();
+        	longitude = gps.getLongitude();
+        	
+        	// \n is for new line
+        	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
+        											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+        	
+		}else{
+        	// can't get location
+        	// GPS or Network is not enabled
+        	// Ask user to enable GPS/network in settings
+        	gps.showSettingsAlert();
+        }
 	    
 	}
 
@@ -250,46 +270,50 @@ public class Welcome extends Activity /* implements LocationListener */{
 				event = SeizeAlert.fromInt(tag.intValue()).getName();
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 				String username = prefs.getString("username", "");
+				
+				// create class object
+		        gps = new GPSTracker(Welcome.this);
+		        
+		        // check if GPS enabled	
+				if(gps.canGetLocation()){
+		        	
+		        	latitude = gps.getLatitude();
+		        	longitude = gps.getLongitude();
+		        	
+		        	// \n is for new line
+		        	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
+		        											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+		        	
+				}else{
+		        	// can't get location
+		        	// GPS or Network is not enabled
+		        	// Ask user to enable GPS/network in settings
+		        	gps.showSettingsAlert();
+		        }
+				
+				
 				if ( event.equals("fall") ){
 					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
 					
-					// create class object
-			        gps = new GPSTracker(Welcome.this);
-			        
-			        // check if GPS enabled		
-			        if(gps.canGetLocation()){
-			        	
-			        	double latitude = gps.getLatitude();
-			        	double longitude = gps.getLongitude();
-			        	
-			        	// \n is for new line
-			        	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
-			        											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
-			        	
-			        	// Email
-						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
-								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
+					
+			        // Email
+					// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+					sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+							alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
-						// SMS
-						String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						sendSMS("5129445248", message);
+					/*
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+					*/
 						
-						// Location SMS
-						Intent intentlocationsmsfall = new Intent(context, LocationSMS.class);
-						intentlocationsmsfall.putExtra(EXTRA_LATITUDE, latitude);
-						intentlocationsmsfall.putExtra(EXTRA_LONGITUDE, longitude);
-						startService(intentlocationsmsfall);
+					// Location SMS
+					Intent intentlocationsms = new Intent(context, LocationSMS.class);
+					intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
+					intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+					startService(intentlocationsms);
 						
-			        }else{
-			        	// can't get location
-			        	// GPS or Network is not enabled
-			        	// Ask user to enable GPS/network in settings
-			        	gps.showSettingsAlert();
-			        }
-			        
-
 					// Play Audio
 					Intent intentplayaudio = new Intent(context, PlayAudio.class);
 					startService(intentplayaudio);
@@ -298,42 +322,25 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 				} else if ( event.equals("seizure") ){
 					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+	
+			        // Email
+					// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+					sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+							alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
-					// create class object
-			        gps = new GPSTracker(Welcome.this);
-			        
-			        // check if GPS enabled		
-			        if(gps.canGetLocation()){
-			        	
-			        	double latitude = gps.getLatitude();
-			        	double longitude = gps.getLongitude();
-			        	
-			        	// \n is for new line
-			        	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
-			        											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
-			        	// Email
-						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
-								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
-
-						// SMS
-						String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						sendSMS("5129445248", message);
+					/*
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+					*/
 						
-						// Location SMS
-						Intent intentlocationsmsseizure = new Intent(context, LocationSMS.class);
-						intentlocationsmsseizure.putExtra(EXTRA_LATITUDE, latitude);
-						intentlocationsmsseizure.putExtra(EXTRA_LONGITUDE, longitude);
-						startService(intentlocationsmsseizure);
+					// Location SMS
+					Intent intentlocationsms = new Intent(context, LocationSMS.class);
+					intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
+					intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+					startService(intentlocationsms);
 						
-			        }else{
-			        	// can't get location
-			        	// GPS or Network is not enabled
-			        	// Ask user to enable GPS/network in settings
-			        	gps.showSettingsAlert();
-			        }
-
 					// Play Audio
 					Intent intentplayaudio = new Intent(context, PlayAudio.class);
 					startService(intentplayaudio);
