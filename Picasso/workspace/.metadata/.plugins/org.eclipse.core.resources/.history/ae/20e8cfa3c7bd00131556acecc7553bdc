@@ -266,6 +266,7 @@ public class Welcome extends Activity {
 								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
+							SMS
 							String message = alert_start + username + alert_seizure_body + 
 								alert_location + latitude + "," + longitude + ". " + alert_end;
 						*/

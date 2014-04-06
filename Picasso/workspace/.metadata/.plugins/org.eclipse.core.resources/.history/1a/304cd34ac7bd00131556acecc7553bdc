@@ -67,7 +67,9 @@ public class Welcome extends Activity {
 	double latitude;
 	double longitude;
 
-	// Automated email/SMS strings
+	// Automatic email/SMS strings
+	//private static final String username = "seizealert@gmail.com";
+	//private static final String password = "seizealert1";
 	private String alert_heading = new String("SeizeAlert!!!");
 	private String alert_start = new String("SeizeAlert has detected that ");
 	private String alert_fall_body = new String(" has fallen ");	
@@ -239,9 +241,11 @@ public class Welcome extends Activity {
 								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
-							String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						*/
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+						 */
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
@@ -266,9 +270,11 @@ public class Welcome extends Activity {
 								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
-							String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						*/
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+						 */
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
@@ -333,6 +339,9 @@ public class Welcome extends Activity {
 
 	/*
 	 * This function displays an alert message!!!
+	 * Inputs:
+	 * title - a string to be displayed as title of warning box.
+	 * mymessage - the message to be displayed on text box.
 	 */
 	public void displayAlertMessage(String title, String mymessage) {
 		new AlertDialog.Builder(this)

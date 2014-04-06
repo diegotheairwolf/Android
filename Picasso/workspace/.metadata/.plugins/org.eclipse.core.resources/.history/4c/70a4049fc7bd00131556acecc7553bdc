@@ -239,9 +239,11 @@ public class Welcome extends Activity {
 								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
-							String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						*/
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+						 */
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
@@ -266,9 +268,11 @@ public class Welcome extends Activity {
 								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
-							String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						*/
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+						 */
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
