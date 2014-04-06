@@ -99,7 +99,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 			PebbleKit.startAppOnPebble(this, SEIZE_ALERT_APP_UUID);
 		}
 		
-		//set up no-title 
+		//set up notitle 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//set up full screen
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
@@ -123,6 +123,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 		PebbleKit.registerPebbleConnectedReceiver(getApplicationContext(), new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				//Log.i(getLocalClassName(), "Pebble connected!");
 			    pebble_status.setText("  Pebble Status: Connected  ");
 		 		pebble_status.setBackgroundColor(Color.parseColor("#99FF66"));
 			}			  
@@ -131,6 +132,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 		PebbleKit.registerPebbleDisconnectedReceiver(getApplicationContext(), new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				//Log.i(getLocalClassName(), "Pebble disconnected!");
 				pebble_status.setText("  Pebble Status: Disconnected  ");
 				pebble_status.setBackgroundColor(Color.parseColor("#FF9966"));
 			}
@@ -147,22 +149,45 @@ public class Welcome extends Activity /* implements LocationListener */{
 	 	seize_alert_motto.startAnimation(animationFadeInSlower);
 	 	pebble_status.startAnimation(animationFadeIn);
 	 	pebble_app_status.startAnimation(animationFadeIn);
-	 		 	
+	 	
+	 	
+	 	/*
+	 	// Get the location manager
+	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	    
+	    // Define the criteria how to select the location in provider -> use default
+	    Criteria criteria = new Criteria();
+	    provider = locationManager.getBestProvider(criteria, false);
+	    Log.i("GPS provider", "Selected provider" + provider);
+	    Location location = locationManager.getLastKnownLocation(provider);
+
+	    // Initialize the location fields
+	    if (location != null) {
+	    	onLocationChanged(location);
+	    } else {
+	    	Lat = 0.0;
+	    	Lng = 0.0;
+	    }
+	    */
+	 	
 	 	// create class object
         gps = new GPSTracker(Welcome.this);
-	 	if(gps.canGetLocation()){        	
+	 	if(gps.canGetLocation()){
+        	
         	latitude = gps.getLatitude();
         	longitude = gps.getLongitude();
         	
         	// \n is for new line
         	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
         											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+        	
 		}else{
         	// can't get location
         	// GPS or Network is not enabled
         	// Ask user to enable GPS/network in settings
         	gps.showSettingsAlert();
-        }	    
+        }
+	    
 	}
 
 	
@@ -223,12 +248,18 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 				if (timestamp != last_timestamp){	// Check if this is new data
 					last_timestamp = timestamp;
+					//handler.notify();
 					event = SeizeAlert.fromInt(tag.intValue()).getName();
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 					String username = prefs.getString("username", "");
+
+
+					// create class object
 					gps = new GPSTracker(Welcome.this);
 
-					if(gps.canGetLocation()){		// check if GPS enabled	
+					// check if GPS enabled	
+					if(gps.canGetLocation()){
+
 						latitude = gps.getLatitude();
 						longitude = gps.getLongitude();
 
@@ -243,8 +274,10 @@ public class Welcome extends Activity /* implements LocationListener */{
 						gps.showSettingsAlert();
 					}
 
+
 					if ( event.equals("fall") ){
 						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+
 
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
@@ -260,8 +293,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -289,8 +320,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -365,7 +394,18 @@ public class Welcome extends Activity /* implements LocationListener */{
 		})
 		.show();
 	}
-	
+
+
+	/*  
+	 * Sends an SMS message to another device
+	 */  
+	private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		Log.i("Before SMS", "Sending SMS");
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+		Log.i("After SMS", "SMS Sent");
+	}
+
 
 	/*
 	 * Plays a Sound

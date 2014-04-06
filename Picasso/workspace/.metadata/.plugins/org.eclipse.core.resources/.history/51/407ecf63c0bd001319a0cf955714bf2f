@@ -150,7 +150,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 	 		 	
 	 	// create class object
         gps = new GPSTracker(Welcome.this);
-	 	if(gps.canGetLocation()){        	
+	 	if(gps.canGetLocation()){
+        	
         	latitude = gps.getLatitude();
         	longitude = gps.getLongitude();
         	
@@ -162,7 +163,8 @@ public class Welcome extends Activity /* implements LocationListener */{
         	// GPS or Network is not enabled
         	// Ask user to enable GPS/network in settings
         	gps.showSettingsAlert();
-        }	    
+        }
+	    
 	}
 
 	
@@ -226,9 +228,14 @@ public class Welcome extends Activity /* implements LocationListener */{
 					event = SeizeAlert.fromInt(tag.intValue()).getName();
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 					String username = prefs.getString("username", "");
+
+
+					// create class object
 					gps = new GPSTracker(Welcome.this);
 
-					if(gps.canGetLocation()){		// check if GPS enabled	
+					// check if GPS enabled	
+					if(gps.canGetLocation()){
+
 						latitude = gps.getLatitude();
 						longitude = gps.getLongitude();
 
@@ -243,8 +250,10 @@ public class Welcome extends Activity /* implements LocationListener */{
 						gps.showSettingsAlert();
 					}
 
+
 					if ( event.equals("fall") ){
 						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+
 
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
@@ -260,8 +269,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -289,8 +296,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -365,7 +370,18 @@ public class Welcome extends Activity /* implements LocationListener */{
 		})
 		.show();
 	}
-	
+
+
+	/*  
+	 * Sends an SMS message to another device
+	 */  
+	private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		Log.i("Before SMS", "Sending SMS");
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+		Log.i("After SMS", "SMS Sent");
+	}
+
 
 	/*
 	 * Plays a Sound

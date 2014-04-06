@@ -260,8 +260,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -289,8 +287,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -365,7 +361,18 @@ public class Welcome extends Activity /* implements LocationListener */{
 		})
 		.show();
 	}
-	
+
+
+	/*  
+	 * Sends an SMS message to another device
+	 */  
+	private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		Log.i("Before SMS", "Sending SMS");
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+		Log.i("After SMS", "SMS Sent");
+	}
+
 
 	/*
 	 * Plays a Sound

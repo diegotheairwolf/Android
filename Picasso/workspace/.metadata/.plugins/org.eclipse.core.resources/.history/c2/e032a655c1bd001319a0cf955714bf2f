@@ -365,7 +365,18 @@ public class Welcome extends Activity /* implements LocationListener */{
 		})
 		.show();
 	}
-	
+
+
+	/*  
+	 * Sends an SMS message to another device
+	 */  
+	private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		Log.i("Before SMS", "Sending SMS");
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+		Log.i("After SMS", "SMS Sent");
+	}
+
 
 	/*
 	 * Plays a Sound
