@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -47,23 +47,24 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.seizealert.Welcome" />
         </service>
-        
         <service
             android:name="com.example.seizealert.PlaySound"
-            android:label="@string/title_activity_play_sound"
-            android:enabled="true">
+            android:enabled="true"
+            android:label="@string/title_activity_play_sound" >
         </service>
-
         <service
             android:name="com.example.seizealert.PlayAudio"
             android:label="@string/title_activity_play_audio" >
         </service>
-        
-        <service 
-            android:name="PlayAlert"  
-            android:enabled="true">            
+        <service
+            android:name="com.example.seizealert.PlayAlert"
+            android:enabled="true" >
         </service>
-        
+
+        <activity
+            android:name="com.example.seizealert.Location"
+            android:label="@string/title_activity_location" >
+        </activity>
     </application>
 
 </manifest>
