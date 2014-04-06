@@ -1,9 +1,9 @@
 package com.example.seizealert;
 
-import java.io.UnsupportedEncodingException;
+//import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Properties;
+//import java.util.Properties;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -11,22 +11,22 @@ import com.example.seizealert.GPSTracker;
 import com.getpebble.android.kit.PebbleKit;
 import com.google.common.primitives.UnsignedInteger;
 
-import android.os.AsyncTask;
+//import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+//import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.telephony.SmsManager;
-import android.util.Log;
+//import android.telephony.SmsManager;
+//import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,14 +39,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.media.MediaPlayer;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+//import javax.mail.Message;
+//import javax.mail.MessagingException;
+//import javax.mail.PasswordAuthentication;
+//import javax.mail.Session;
+//import javax.mail.Transport;
+//import javax.mail.internet.AddressException;
+//import javax.mail.internet.InternetAddress;
+//import javax.mail.internet.MimeMessage;
 
 public class Welcome extends Activity /* implements LocationListener */{
 	
@@ -72,7 +72,10 @@ public class Welcome extends Activity /* implements LocationListener */{
 	private TextView pebble_app_status;
 	private UnsignedInteger last_timestamp;
 	
-	// GPSTracker class
+	// Email Service Class
+	EmailService email;
+	
+	// GPSTracker Class
 	GPSTracker gps;
 	public final static String EXTRA_LATITUDE = "com.example.seizealert.LATITUDE";
 	public final static String EXTRA_LONGITUDE = "com.example.seizealert.LONGITUDE";
@@ -80,8 +83,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 	double longitude;
 
 	// Automatic email/SMS strings
-	private static final String username = "seizealert@gmail.com";
-	private static final String password = "seizealert1";
+	//private static final String username = "seizealert@gmail.com";
+	//private static final String password = "seizealert1";
 	private String alert_heading = new String("SeizeAlert!!!");
 	private String alert_start = new String("SeizeAlert has detected that ");
 	private String alert_fall_body = new String(" has fallen ");	
@@ -227,6 +230,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 					String username = prefs.getString("username", "");
 					gps = new GPSTracker(Welcome.this);
+					email = new EmailService(Welcome.this);
 
 					if(gps.canGetLocation()){		// check if GPS enabled	
 						latitude = gps.getLatitude();
@@ -248,7 +252,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+						email.sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
 								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
@@ -277,7 +281,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+						email.sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
 								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
@@ -386,9 +390,9 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 
 
-	/*
+/*	
 	 * Automatic Email Service
-	 */
+	 
 	private void sendMail(String email, String subject, String messageBody) {
 		Log.i("Email", "Before sending email");
 		
@@ -456,5 +460,5 @@ public class Welcome extends Activity /* implements LocationListener */{
 			}
 			return null;
 		}
-	}
+	}*/
 }
