@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.telephony.SmsManager;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +46,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.preference.PreferenceManager;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -202,6 +204,34 @@ public class Welcome extends Activity /* implements LocationListener */{
         	// Ask user to enable GPS/network in settings
         	gps.showSettingsAlert();
         }
+	 	
+	 	
+	 	// Ask user for name
+	 	AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+	 	alert.setTitle("Settings");
+	 	alert.setMessage("What is your name?");
+
+	 	// Set an EditText view to get user input 
+	 	final EditText input = new EditText(this);
+	 	alert.setView(input);
+
+	 	alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	 	public void onClick(DialogInterface dialog, int whichButton) {
+	 	  String value = input.toString();
+	 	  Editable value2 = input.getText();
+	 	  SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Welcome.this);
+	 	  String username = prefs.getString("username", "");
+	 	  }
+	 	});
+
+	 	alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	 	  public void onClick(DialogInterface dialog, int whichButton) {
+	 	    // Canceled.
+	 	  }
+	 	});
+
+	 	alert.show();
 	    
 	}
 
