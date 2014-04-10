@@ -21,9 +21,11 @@ import android.widget.Toast;
 
 public class LocationSMS extends IntentService {
 	
-	
+		double latitude;
+		double longitude;
 	
 		public int onStartCommand(Intent intent, int flags, int startId) {
+			Log.i("here", "SMS Service starts here...");
 			Toast.makeText(this, "SMS Sent", Toast.LENGTH_SHORT).show();
 		    return super.onStartCommand(intent,flags,startId);
 		}
@@ -44,17 +46,33 @@ public class LocationSMS extends IntentService {
 	  @Override
 	  protected void onHandleIntent(Intent intent) {
 		// Get current address
-		// String address = getAddress();
+		//String address = getAddress();
 		  
 			
 		// Get username currently on preferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		String username = prefs.getString("username", "");
+		
+		latitude = intent.getDoubleExtra(Welcome.EXTRA_LATITUDE, 0.0);
+		longitude = intent.getDoubleExtra(Welcome.EXTRA_LONGITUDE, 0.0);
+		
+		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+		List<Address> addresses = null;
+			
+		try {
+			addresses = geocoder.getFromLocation(latitude, longitude, 1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+		String address = addresses.get(0).getAddressLine(0);
+		
 			
 		// Use the default value if username is null.	
 			
 		sendSMS("5129445248", "Hello, the patient " + username + 
-				" is having a seizure at the location: " /*+ address*/);
+				" is having a seizure at the location: " + address);
 		
 			
 		Log.i("***** breakpoint", " ");
@@ -65,7 +83,10 @@ public class LocationSMS extends IntentService {
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(phoneNumber, null, message, null, null);
 	}
-		
+	
+    
+    
+    
 	// Gets the location coordinates and translates them into GeoCoordinates
 	private String getAddress() {
 		
@@ -104,6 +125,13 @@ public class LocationSMS extends IntentService {
 		String str = addresses.get(0).getAddressLine(0);
 		Log.i("***** address:", str);
 		return str;
-		}
-		
 	}
+	
+	
+	
+	@Override  
+    public void onDestroy() {  
+          super.onDestroy();  
+          Log.i("here", "SMS Service ends here...");
+    }	
+}

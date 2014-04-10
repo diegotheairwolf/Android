@@ -6,23 +6,28 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 public class PlaySound extends IntentService {
     // originally from http://marblemice.blogspot.com/2010/04/generate-and-play-tone-in-android.html
     // and modified by Steve Pomeroy <steve@staticfree.info>
-    private final int duration = 5; // seconds
+    private final int duration = 10; // seconds
     private final int sampleRate = 8000;
     private final int numSamples = duration * sampleRate;
     private final double sample[] = new double[numSamples];
     private final double freqOfTone = 440; // hz
+    
+    int originalVolume;
 
     private final byte generatedSnd[] = new byte[2 * numSamples];
 
     Handler handler = new Handler();
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		Log.i("here", "PlaySound Service starts here...");
 		Toast.makeText(this, "Emitting Sound", Toast.LENGTH_SHORT).show();
 	    return super.onStartCommand(intent,flags,startId);
 	}
@@ -56,7 +61,7 @@ public class PlaySound extends IntentService {
           }
       });
       thread.start();
-  }
+      }
   
   void genTone(){
       // fill out the array
@@ -78,13 +83,19 @@ public class PlaySound extends IntentService {
   }
 
   void playSound(){
-      final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-              sampleRate, AudioFormat.CHANNEL_CONFIGURATION_MONO,
-              AudioFormat.ENCODING_PCM_16BIT, generatedSnd.length,
-              AudioTrack.MODE_STATIC);
-      audioTrack.write(generatedSnd, 0, generatedSnd.length);
-      audioTrack.play();
+	
+     final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+             sampleRate, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+             AudioFormat.ENCODING_PCM_16BIT, generatedSnd.length,
+             AudioTrack.MODE_STATIC);
+     audioTrack.write(generatedSnd, 0, generatedSnd.length);
+     audioTrack.play();
+ 
   }
 
-	
+  @Override  
+  public void onDestroy() {
+      super.onDestroy();  
+      Log.i("here", "PlaySound Service ends here...");
+  }	
 }

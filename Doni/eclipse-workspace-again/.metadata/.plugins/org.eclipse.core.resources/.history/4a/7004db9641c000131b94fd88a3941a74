@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        
+	<string-array name="add_contacts_entries">
+    </string-array>
+    
+	<string-array name="add_contacts_values">
+    </string-array>
+    
+	<string-array name="empty_array">
+    </string-array>
+    
+	<string-array name="empty_array">
+    </string-array>
+    
+    <string-array name="empty_array">
+    </string-array>
+    
+</resources>

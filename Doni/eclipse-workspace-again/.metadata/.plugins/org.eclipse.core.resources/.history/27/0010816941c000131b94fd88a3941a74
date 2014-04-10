@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceScreen
+        android:key="edit_contacts"
+        android:title="@string/pref_edit_contacts"
+        android:persistent="true">
+        <Preference
+            android:key="add_contact"
+            android:title="@string/pref_add_contact" />
+        <Preference
+            android:key="delete_contact"
+            android:title="@string/pref_delete_contact" />
+        <MultiSelectListPreference
+        android:dialogTitle="Add contacts"
+        android:key="add_contacts_multiselect_list_preference"
+        android:summary=""        
+        android:title="Add Contacts"
+        android:entries="@array/add_contacts_entries"
+        android:entryValues="@array/add_contacts_values"
+        android:defaultValue="@array/empty_array"
+        />
+        <MultiSelectListPreference
+        android:dialogTitle="Delete Contacts"
+        android:key="delete_contacts_multiselect_list_preference"
+        android:summary=""        
+        android:title="Delete Contacts"
+        android:entries="@array/delete_contacts_entries"
+        android:entryValues="@array/delete_contacts_entries"
+        android:defaultValue="@array/empty_array"
+        />
+    </PreferenceScreen>
+
+
+</PreferenceScreen>

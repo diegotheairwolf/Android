@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <PreferenceScreen
+        android:key="edit_contacts"
+        android:title="@string/pref_edit_contacts"
+        android:persistent="true">
+        <Preference
+            android:key="add_contact"
+            android:title="@string/pref_add_contact" />
+        <Preference
+            android:key="delete_contact"
+            android:title="@string/pref_delete_contact" />
+        
+        
+    </PreferenceScreen>
+
+
+</PreferenceScreen>
