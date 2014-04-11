@@ -13,10 +13,15 @@ public final class R {
         public static final int fadein_slower=0x7f040001;
     }
     public static final class array {
-        public static final int pref_example_list_titles=0x7f090000;
-        public static final int pref_example_list_values=0x7f090001;
-        public static final int pref_sync_frequency_titles=0x7f090002;
-        public static final int pref_sync_frequency_values=0x7f090003;
+        public static final int add_contacts_entries=0x7f080000;
+        public static final int add_contacts_values=0x7f080001;
+        public static final int delete_contacts_entries=0x7f080002;
+        public static final int delete_contacts_values=0x7f080003;
+        public static final int empty_array=0x7f080004;
+        public static final int pref_example_list_titles=0x7f080005;
+        public static final int pref_example_list_values=0x7f080006;
+        public static final int pref_sync_frequency_titles=0x7f080007;
+        public static final int pref_sync_frequency_values=0x7f080008;
     }
     public static final class attr {
     }
@@ -27,8 +32,8 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f080000;
-        public static final int activity_vertical_margin=0x7f080001;
+        public static final int activity_horizontal_margin=0x7f090000;
+        public static final int activity_vertical_margin=0x7f090001;
     }
     public static final class drawable {
         public static final int ic_action_settings=0x7f020000;

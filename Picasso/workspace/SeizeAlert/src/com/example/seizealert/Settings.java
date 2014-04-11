@@ -1,26 +1,41 @@
 package com.example.seizealert;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -33,7 +48,13 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class Settings extends PreferenceActivity {
+public class Settings extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+	
+	// added this due to http://stackoverflow.com/questions/12551854/building-preference-screen-in-code-depending-on-another-setting
+	public static final String KEY_EDIT_CONTACTS = "edit_contacts";
+	public static final String KEY_CONTACTSTOADDLIST = "key_contactsToAddList";
+	public static final String KEY_CONTACTLIST_SHAREDPREF = "contactList";
+	
 	/**
 	 * Determines whether to always show the simplified settings UI, where
 	 * settings are presented in a single list. When false, settings are shown
@@ -48,6 +69,8 @@ public class Settings extends PreferenceActivity {
 
 		setupSimplePreferencesScreen();
 		
+		setupOnSharedPreferenceChangedListener();
+				
 		// Access to the LOCATION ACCESS GPS preference
 		Preference goToGPS = (Preference) findPreference("gps");
 		goToGPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -59,6 +82,7 @@ public class Settings extends PreferenceActivity {
 		            return true;
 		        }
 		});
+	
 	}
 
 	/**
@@ -66,6 +90,7 @@ public class Settings extends PreferenceActivity {
 	 * device configuration dictates that a simplified, single-pane UI should be
 	 * shown.
 	 */
+	@SuppressLint("NewApi")
 	private void setupSimplePreferencesScreen() {
 		if (!isSimplePreferences(this)) {
 			return;
@@ -101,8 +126,6 @@ public class Settings extends PreferenceActivity {
 		getPreferenceScreen().addPreference(fakeHeader);
 		addPreferencesFromResource(R.xml.pref_connectivity);
 		
-		
-
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
@@ -110,11 +133,304 @@ public class Settings extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("example_list"));
 		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 		bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-		bindPreferenceSummaryToValue(findPreference("add_contact"));
-		bindPreferenceSummaryToValue(findPreference("delete_contact"));
+		// bindPreferenceSummaryToValue(findPreference("add_contact"));
+		// bindPreferenceSummaryToValue(findPreference("delete_contact"));
 		bindPreferenceSummaryToValue(findPreference("bluetooth"));
 		bindPreferenceSummaryToValue(findPreference("gps"));
+		
+		
+		
+		
+		
+		// we now retrieve list of contacts and display
+		// http://stackoverflow.com/questions/3572463/what-is-context-in-android
+		// used to have context as argument, but had error, so tried that above
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		SharedPreferences.Editor editorTemp = preferences.edit();
+		editorTemp.remove(KEY_CONTACTLIST_SHAREDPREF).commit();
+		editorTemp.remove("add_contacts_multiselect_list_preference").commit();
+		editorTemp.remove("delete_contacts_multiselect_list_preference").commit();
+		
+		editorTemp.clear().commit();
+		editorTemp.clear().apply();
+		//editorTemp.apply();
+		// editorTemp.commit();
+		
+		
+		
+		// check if editor has contactList
+		if(!preferences.contains(KEY_CONTACTLIST_SHAREDPREF)) {
+			// if not, then add some default contacts
+			// *** maybe at start of app prompt user to input at least one contact ***
+			Set<String> defaultContactListSetToPut = new HashSet<String>();
+			
+			ArrayList<String> allContacts = getAllContacts();
+			for(String contact: allContacts) {
+				defaultContactListSetToPut.add(contact);
+			}
+			/*
+			defaultContactListSetToPut.add("name: John Doe number: 111 222 3333 email: john@mail.com");
+			defaultContactListSetToPut.add("name: Jane Smith number: 444 555 6666 email: jane@mail.com");
+			*/
+			// had to add @SuppressLint("NewApi")
+			// to top of this method cuz target min api too low
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, defaultContactListSetToPut);
+			editor.apply();
+			// editor.commit();
+		}
+		
+		
+		
+		/*
+		// added this cuz http://stackoverflow.com/questions/12551854/building-preference-screen-in-code-depending-on-another-setting
+		// also, added global KEY_EDIT_CONTACTS way above 
+		// get the edit contacts screen preference
+		PreferenceScreen editContactsPrefScreen = (PreferenceScreen)getPreferenceScreen().findPreference(KEY_EDIT_CONTACTS);
+		*/
+		
+		
+		/*
+		 * alright so the dynamic checkboxes aren't working because
+		 * cant .addPreference(somecheckboxpreference)
+		 * so what we can do is on click of add/delete contact, pop up
+		 * a list preference and the result of that shit is what you add/delete
+		 */
+		
+		// for all contacts in sharedPreference
+		Set<String> storedContacts = preferences.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+		MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+		CharSequence[] deleteContactsListPrefEntries = new CharSequence[storedContacts.size()];
+		int index = 0;
+		for(String contact : storedContacts) {
+			// so populate the listpreference for add xor delete here and do another one of the foreach 
+			// loops for the other
+			deleteContactsListPrefEntries[index] = contact;
+			index++;
+			// CheckBoxPreference checkbox = new CheckBoxPreference(this);
+			// editContactsPrefScreen.addPreference(contact);
+		}
+		CharSequence[] deleteContactsListPrefEntryValues = new CharSequence[storedContacts.size()];
+		for(int i = 0; i < storedContacts.size(); i++) {
+			deleteContactsListPrefEntryValues[i] = deleteContactsListPrefEntries[i];
+		}
+		deleteContactsListPref.setEntries(deleteContactsListPrefEntries);
+		deleteContactsListPref.setEntryValues(deleteContactsListPrefEntryValues);
+		
+		
+		
+		MultiSelectListPreference addContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("add_contacts_multiselect_list_preference");
+		ArrayList<String> allContacts = getAllContacts();
+		CharSequence[] addContactsListPrefEntries = new CharSequence[allContacts.size()];
+		CharSequence[] addContactsListPrefEntryValues = new CharSequence[allContacts.size()];
+		index = 0;
+		for(String contact : allContacts) {
+			addContactsListPrefEntries[index] = contact;
+			addContactsListPrefEntryValues[index] = contact;
+			index += 1;
+		}
+		addContactsListPref.setEntries(addContactsListPrefEntries);
+		addContactsListPref.setEntryValues(addContactsListPrefEntryValues);
+
+		
+		
+		Preference viewContactsPref = (Preference) findPreference("view_contacts");
+		viewContactsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+            	Log.i("***settings***", "pref click: viewContacsPref!");            	
+            	displayStoredContacts();
+            	return true;
+            }
+        });
+		
+		
+		/*
+		Preference addPref = (Preference) findPreference("add_contact");
+		addPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                //open browser or intent here
+            	Log.i("***settings***", "pref click!");
+            	ArrayList<String> contacts = getAllContacts();
+            	
+            	// return true if click was handled well
+            	return true;
+            }
+        });
+        */
+		/*
+		Preference deletePref = (Preference) findPreference("delete_contact");
+		deletePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                //open browser or intent here
+            	PreferenceScreen editContactsScreen = (PreferenceScreen) getPreferenceManager().findPreference("edit_contacts");
+            	
+            	// count which boxes are clicked (or the result of ListPreference)
+            	// then foreach, delete
+            	
+            	// but just do this in the meantime just remove the "whatevs" preference
+            	Preference whatevs = getPreferenceManager().findPreference("some_key");
+            	if(whatevs != null)
+                	editContactsScreen.removePreference(whatevs);
+            	
+            	return true;
+            }		
+		});
+		*/
+		
+		Log.i("***setings***", "exiting setupSimplePreferencesScreens");
 	}
+	
+	
+	private void setupOnSharedPreferenceChangedListener() {
+		// register shared pref to be listened to
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.registerOnSharedPreferenceChangeListener(this);
+	}
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+		
+		/*
+		 * maybe make sure to remove sharedpreference 
+		 * or delete anything without the 'name:' substring or 
+		 * delete repeats
+		 */
+		
+		if (key.equals("delete_contacts_multiselect_list_preference")) {			
+			Set<String> selections = prefs.getStringSet(key, null);
+			Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+			
+			Set<String> updatedStoredContacts = new HashSet<String>();
+			for(String contact : storedContacts) {
+				if (!selections.contains(contact))
+					updatedStoredContacts.add(contact);
+			}
+				
+			SharedPreferences.Editor editor = prefs.edit();
+			
+			/*
+			 * cant do this bc then goes back into this function
+			editor.remove(KEY_CONTACTLIST_SHAREDPREF);
+			editor.commit();
+			*/
+			
+			editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
+			editor.apply();
+			// editor.commit();
+			
+			CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
+			CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
+			int index = 0;
+			for(String contact : updatedStoredContacts) {
+				entries[index] = contact;
+				entryValues[index] = contact;
+				index += 1;
+			}
+			
+			MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+			deleteContactsListPref.setEntries(entries);
+			deleteContactsListPref.setEntryValues(entryValues);
+			
+			
+			Log.i("***settings***", "aw yiss");			
+		} else if (key.equals("add_contacts_multiselect_list_preference")) {
+			Set<String> selections = prefs.getStringSet(key, null);
+			Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+			
+			Set<String> updatedStoredContacts = new HashSet<String>();
+			for(String contact : selections) {
+				updatedStoredContacts.add(contact);
+			}
+			for(String contact : storedContacts) {
+				updatedStoredContacts.add(contact);
+			}
+			
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
+			editor.apply();
+			// editor.commit();
+			
+			CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
+			CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
+			int index = 0;
+			for(String contact : updatedStoredContacts) {
+				entries[index] = contact;
+				entryValues[index] = contact;
+				index += 1;
+			}
+			
+			MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+			deleteContactsListPref.setEntries(entries);
+			deleteContactsListPref.setEntryValues(entryValues);
+			
+			Log.i("***settings***", "aw yiss");
+		}
+		
+		// updateContactView();
+	}
+	
+	private void displayStoredContacts() {
+		Set<String> storedContacts = getStoredContacts();
+		String message = "";
+		for(String contact : storedContacts) {
+			message += contact;
+			message += "\n";
+		}
+  
+    	Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+	}
+	
+	
+	/*
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void updateContactView() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+		
+		PreferenceScreen editContactsPrefScreen = (PreferenceScreen)getPreferenceScreen().findPreference(KEY_EDIT_CONTACTS);
+		
+		
+	}
+	*/
+	
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private Set<String> getStoredContacts() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+		return storedContacts;
+	}
+	
+	
+	private ArrayList<String> getAllContacts() {
+		ArrayList<String> contacts = new ArrayList<String>();
+		ContentResolver cr = getContentResolver();
+		Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+		if (cur.getCount() > 0) {
+			while (cur.moveToNext()) {
+				String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+				String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+	            if (Integer.parseInt(cur.getString(
+	            		cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+	            	Cursor pCur = cr.query(
+	            			ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
+	                               ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
+	                               new String[]{id}, null);
+	                while (pCur.moveToNext()) {
+	                	String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+	                	Log.i("***settings***", "in displayContacts");
+	                	contacts.add("name: " + name + " number: " + phoneNo);
+	                	// Toast.makeText(NativeContentProvider.this, "Name: " + name + ", Phone No: " + phoneNo, Toast.LENGTH_SHORT).show();
+	                }
+	                pCur.close();
+	           }
+	        }	            
+	    }
+		return contacts;
+	}
+	
+	
 
 	/** {@inheritDoc} */
 	@Override
@@ -247,6 +563,11 @@ public class Settings extends PreferenceActivity {
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("username"));
 			bindPreferenceSummaryToValue(findPreference("example_list"));
+			
+			
+			
+			
+			
 		}
 	}
 
@@ -306,8 +627,9 @@ public class Settings extends PreferenceActivity {
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("edit_contacts"));
-			bindPreferenceSummaryToValue(findPreference("add_contact"));
-			bindPreferenceSummaryToValue(findPreference("delete_contact"));
+			// bindPreferenceSummaryToValue(findPreference("add_contact"));
+			// bindPreferenceSummaryToValue(findPreference("delete_contact"));
+			
 		}
 	}
 	
