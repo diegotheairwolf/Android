@@ -133,8 +133,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		bindPreferenceSummaryToValue(findPreference("example_list"));
 		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
 		bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-		// bindPreferenceSummaryToValue(findPreference("add_contact"));
-		// bindPreferenceSummaryToValue(findPreference("delete_contact"));
+		// bindPreferenceSummaryToValue(findPreference("add_contacts_multiselect_list_preference"));
+		// bindPreferenceSummaryToValue(findPreference("delete_contacts_multiselect_list_preference"));
 		bindPreferenceSummaryToValue(findPreference("bluetooth"));
 		bindPreferenceSummaryToValue(findPreference("gps"));
 		
@@ -148,14 +148,14 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		SharedPreferences.Editor editorTemp = preferences.edit();
-		editorTemp.remove(KEY_CONTACTLIST_SHAREDPREF).commit();
+		// editorTemp.remove(KEY_CONTACTLIST_SHAREDPREF).commit();
 		editorTemp.remove("add_contacts_multiselect_list_preference").commit();
 		editorTemp.remove("delete_contacts_multiselect_list_preference").commit();
 		
-		editorTemp.clear().commit();
-		editorTemp.clear().apply();
-		//editorTemp.apply();
-		// editorTemp.commit();
+		//editorTemp.clear().commit();
+		//editorTemp.clear().apply();
+		
+		
 		
 		
 		
@@ -299,72 +299,81 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		
 		if (key.equals("delete_contacts_multiselect_list_preference")) {			
 			Set<String> selections = prefs.getStringSet(key, null);
-			Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
 			
-			Set<String> updatedStoredContacts = new HashSet<String>();
-			for(String contact : storedContacts) {
-				if (!selections.contains(contact))
-					updatedStoredContacts.add(contact);
-			}
+			if (selections != null) {
 				
-			SharedPreferences.Editor editor = prefs.edit();
-			
-			/*
-			 * cant do this bc then goes back into this function
-			editor.remove(KEY_CONTACTLIST_SHAREDPREF);
-			editor.commit();
-			*/
-			
-			editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
-			editor.apply();
-			// editor.commit();
-			
-			CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
-			CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
-			int index = 0;
-			for(String contact : updatedStoredContacts) {
-				entries[index] = contact;
-				entryValues[index] = contact;
-				index += 1;
+				Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+				
+				Set<String> updatedStoredContacts = new HashSet<String>();
+				for(String contact : storedContacts) {
+					if (!selections.contains(contact))
+						updatedStoredContacts.add(contact);
+				}
+					
+				SharedPreferences.Editor editor = prefs.edit();
+				
+				/*
+				 * cant do this bc then goes back into this function
+				editor.remove(KEY_CONTACTLIST_SHAREDPREF);
+				editor.commit();
+				*/
+				
+				editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
+				editor.apply();
+				// editor.commit();
+				
+				CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
+				CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
+				int index = 0;
+				for(String contact : updatedStoredContacts) {
+					entries[index] = contact;
+					entryValues[index] = contact;
+					index += 1;
+				}
+				
+				MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+				deleteContactsListPref.setEntries(entries);
+				deleteContactsListPref.setEntryValues(entryValues);
+				
+				
+				Log.i("***settings***", "aw yiss");		
+				
 			}
-			
-			MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
-			deleteContactsListPref.setEntries(entries);
-			deleteContactsListPref.setEntryValues(entryValues);
-			
-			
-			Log.i("***settings***", "aw yiss");			
 		} else if (key.equals("add_contacts_multiselect_list_preference")) {
 			Set<String> selections = prefs.getStringSet(key, null);
-			Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
 			
-			Set<String> updatedStoredContacts = new HashSet<String>();
-			for(String contact : selections) {
-				updatedStoredContacts.add(contact);
+			if(selections != null) {
+			
+				Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+				
+				Set<String> updatedStoredContacts = new HashSet<String>();
+				for(String contact : selections) {
+					updatedStoredContacts.add(contact);
+				}
+				for(String contact : storedContacts) {
+					updatedStoredContacts.add(contact);
+				}
+				
+				SharedPreferences.Editor editor = prefs.edit();
+				editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
+				editor.apply();
+				// editor.commit();
+				
+				CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
+				CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
+				int index = 0;
+				for(String contact : updatedStoredContacts) {
+					entries[index] = contact;
+					entryValues[index] = contact;
+					index += 1;
+				}
+				
+				MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+				deleteContactsListPref.setEntries(entries);
+				deleteContactsListPref.setEntryValues(entryValues);
+				
+				Log.i("***settings***", "aw yiss");
 			}
-			for(String contact : storedContacts) {
-				updatedStoredContacts.add(contact);
-			}
-			
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
-			editor.apply();
-			// editor.commit();
-			
-			CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
-			CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
-			int index = 0;
-			for(String contact : updatedStoredContacts) {
-				entries[index] = contact;
-				entryValues[index] = contact;
-				index += 1;
-			}
-			
-			MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
-			deleteContactsListPref.setEntries(entries);
-			deleteContactsListPref.setEntryValues(entryValues);
-			
-			Log.i("***settings***", "aw yiss");
 		}
 		
 		// updateContactView();
@@ -627,8 +636,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("edit_contacts"));
-			// bindPreferenceSummaryToValue(findPreference("add_contact"));
-			// bindPreferenceSummaryToValue(findPreference("delete_contact"));
+			bindPreferenceSummaryToValue(findPreference("add_contacts_multiselect_list_preference"));
+			bindPreferenceSummaryToValue(findPreference("delete_contacts_multiselect_list_preference"));
 			
 		}
 	}
