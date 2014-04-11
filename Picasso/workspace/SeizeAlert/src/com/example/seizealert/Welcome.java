@@ -1,17 +1,10 @@
-/*
-* SeizeAlert - A Seizure Notification and Detection System.
-*
-* Copyright © 2014 Pablo S. Campos, Diego Moreno, and Andoni Mendoza.
-*
-* No part of this website may be reproduced without Pablo S. Campos's express consent.
-*
-*/
-
-
 package com.example.seizealert;
 
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -19,18 +12,23 @@ import com.example.seizealert.GPSTracker;
 import com.getpebble.android.kit.PebbleKit;
 import com.google.common.primitives.UnsignedInteger;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,16 +36,31 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 
-public class Welcome extends Activity {
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+public class Welcome extends Activity /* implements LocationListener */{
 	
 	private static final UUID SEIZE_ALERT_APP_UUID = UUID.fromString("5f60123d-353f-421f-9882-1a3a71875a0e");
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 	private PebbleKit.PebbleDataLogReceiver mDataLogReceiver = null;
+	private static final int GET_SMS_LOC_REQUEST = 1; //The request code
 	private MediaPlayer mp = null;
 	private long[] vibPattern = { 0, 500, 500,
 									 500, 500,
@@ -66,18 +79,17 @@ public class Welcome extends Activity {
 	private TextView pebble_status;
 	private TextView pebble_app_status;
 	private UnsignedInteger last_timestamp;
-	
-	// Email Service Class
-	EmailService email;
-	
-	// GPSTracker Class
+		
+	// GPSTracker class
 	GPSTracker gps;
 	public final static String EXTRA_LATITUDE = "com.example.seizealert.LATITUDE";
 	public final static String EXTRA_LONGITUDE = "com.example.seizealert.LONGITUDE";
 	double latitude;
 	double longitude;
 
-	// Automated email/SMS strings
+	// Automatic email/SMS strings
+	private static final String username = "seizealert@gmail.com";
+	private static final String password = "seizealert1";
 	private String alert_heading = new String("SeizeAlert!!!");
 	private String alert_start = new String("SeizeAlert has detected that ");
 	private String alert_fall_body = new String(" has fallen ");	
@@ -95,7 +107,7 @@ public class Welcome extends Activity {
 			PebbleKit.startAppOnPebble(this, SEIZE_ALERT_APP_UUID);
 		}
 		
-		//set up no-title 
+		//set up notitle 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//set up full screen
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
@@ -119,6 +131,7 @@ public class Welcome extends Activity {
 		PebbleKit.registerPebbleConnectedReceiver(getApplicationContext(), new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				//Log.i(getLocalClassName(), "Pebble connected!");
 			    pebble_status.setText("  Pebble Status: Connected  ");
 		 		pebble_status.setBackgroundColor(Color.parseColor("#99FF66"));
 			}			  
@@ -127,6 +140,7 @@ public class Welcome extends Activity {
 		PebbleKit.registerPebbleDisconnectedReceiver(getApplicationContext(), new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				//Log.i(getLocalClassName(), "Pebble disconnected!");
 				pebble_status.setText("  Pebble Status: Disconnected  ");
 				pebble_status.setBackgroundColor(Color.parseColor("#FF9966"));
 			}
@@ -146,13 +160,15 @@ public class Welcome extends Activity {
 	 		 	
 	 	// create class object
         gps = new GPSTracker(Welcome.this);
-	 	if(gps.canGetLocation()){        	
+	 	if(gps.canGetLocation()){
+        	
         	latitude = gps.getLatitude();
         	longitude = gps.getLongitude();
         	
         	// \n is for new line
         	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
         											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+        	
 		}else{
         	// can't get location
         	// GPS or Network is not enabled
@@ -200,9 +216,25 @@ public class Welcome extends Activity {
 		pebble_status.clearAnimation();
 		
 		// Handle Pebble data logging
-		if (mDataLogReceiver != null) {
+		//if (mDataLogReceiver != null) {
 			//unregisterReceiver(mDataLogReceiver);
 			//mDataLogReceiver = null;
+		//}
+	}
+	
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		// Stop animation if application goes in background
+		seize_alert_logo.clearAnimation();
+		seize_alert_motto.clearAnimation();
+		pebble_status.clearAnimation();
+		
+		// Handle Pebble data logging
+		if (mDataLogReceiver != null) {
+			unregisterReceiver(mDataLogReceiver);
+			mDataLogReceiver = null;
 		}
 	}
 
@@ -210,6 +242,11 @@ public class Welcome extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		
+		// Request updates at startup
+		// locationManager.requestLocationUpdates(provider, 0, 0, this);
+
 		mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
 			String event = new String();
 
@@ -217,15 +254,19 @@ public class Welcome extends Activity {
 			public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
 					UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
 
-				if (timestamp != last_timestamp){	// Check if this is new data
-					last_timestamp = timestamp;
+				if (last_timestamp!=timestamp){
+					last_timestamp=timestamp;
+					//handler.notify();
 					event = SeizeAlert.fromInt(tag.intValue()).getName();
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 					String username = prefs.getString("username", "");
-					gps = new GPSTracker(Welcome.this);
-					email = new EmailService(Welcome.this);
 
-					if(gps.canGetLocation()){		// check if GPS enabled	
+					// create class object
+					gps = new GPSTracker(Welcome.this);
+
+					// check if GPS enabled	
+					if(gps.canGetLocation()){
+
 						latitude = gps.getLatitude();
 						longitude = gps.getLongitude();
 
@@ -240,23 +281,25 @@ public class Welcome extends Activity {
 						gps.showSettingsAlert();
 					}
 
+
 					if ( event.equals("fall") ){
 						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
 
+
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						email.sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
 								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
-							String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						*/
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+						 */
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -272,18 +315,18 @@ public class Welcome extends Activity {
 
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						email.sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
 								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
-							String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + ". " + alert_end;
-						*/
+					// SMS
+					String message = alert_start + username + alert_seizure_body + 
+							alert_location + latitude + "," + longitude + ". " + alert_end;
+					sendSMS("5129445248", message);
+						 */
 
 						// Location SMS
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						// TODO: instead of passing lat and lng, pass one string (the entire message
-						// as we are doing on the email. That will make thinks easier.
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
 						startService(intentlocationsms);
@@ -304,8 +347,10 @@ public class Welcome extends Activity {
 						// Vibrate for 10000 milliseconds - 10 seconds
 						Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
 						v.vibrate(vibPattern, -1);
+
+
 					}
-				}		
+				}
 			}            
 		};
 
@@ -343,6 +388,9 @@ public class Welcome extends Activity {
 
 	/*
 	 * This function displays an alert message!!!
+	 * Inputs:
+	 * title - a string to be displayed as title of warning box.
+	 * mymessage - the message to be displayed on text box.
 	 */
 	public void displayAlertMessage(String title, String mymessage) {
 		new AlertDialog.Builder(this)
@@ -355,7 +403,7 @@ public class Welcome extends Activity {
 		})
 		.show();
 	}
-	
+
 
 	/*
 	 * Plays a Sound
@@ -372,5 +420,79 @@ public class Welcome extends Activity {
 			}
 		});
 		thread.start();
+	}
+
+
+
+	/*
+	 * Automatic Email Service
+	 */
+	private void sendMail(String email, String subject, String messageBody) {
+		Log.i("Email", "Before sending email");
+		
+		Session session = createSessionObject();
+
+		try {
+			Message message = createMessage(email, subject, messageBody, session);
+			new SendMailTask().execute(message);
+		} catch (AddressException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		Log.i("Email", "After sending email");
+	}
+
+	private Message createMessage(String email, String subject, String messageBody, 
+			Session session) throws MessagingException, UnsupportedEncodingException {
+		Message message = new MimeMessage(session);
+		message.setFrom(new InternetAddress("SeizeAlert.com", "SeizeAlert Team"));
+		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email, email));
+		message.setSubject(subject);
+		message.setText(messageBody);
+		return message;
+	}
+
+	private Session createSessionObject() {
+		Properties properties = new Properties();
+		properties.put("mail.smtp.auth", "true");
+		properties.put("mail.smtp.starttls.enable", "true");
+		properties.put("mail.smtp.host", "smtp.gmail.com");
+		properties.put("mail.smtp.port", "587");
+
+		return Session.getInstance(properties, new javax.mail.Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(username, password);
+			}
+		});
+	}
+
+	private class SendMailTask extends AsyncTask<Message, Void, Void> {
+		private ProgressDialog progressDialog;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			progressDialog = ProgressDialog.show(Welcome.this, "Please wait", "Sending mail", 
+					true, false);
+		}
+
+		@Override
+		protected void onPostExecute(Void aVoid) {
+			super.onPostExecute(aVoid);
+			progressDialog.dismiss();
+		}
+
+		@Override
+		protected Void doInBackground(Message... messages) {
+			try {
+				Transport.send(messages[0]);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
 	}
 }
