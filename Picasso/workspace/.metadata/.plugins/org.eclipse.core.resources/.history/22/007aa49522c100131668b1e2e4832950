@@ -359,6 +359,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 						// Vibrate for 10000 milliseconds - 10 seconds
 						Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
 						v.vibrate(vibPattern, -1);
+
+
 					}
 				}
 			}            
