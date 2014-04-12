@@ -249,6 +249,12 @@ public class Welcome extends Activity /* implements LocationListener */{
 		seize_alert_logo.clearAnimation();
 		seize_alert_motto.clearAnimation();
 		pebble_status.clearAnimation();
+		
+		// Handle Pebble data logging
+		if (mDataLogReceiver != null) {
+			unregisterReceiver(mDataLogReceiver);
+			mDataLogReceiver = null;
+		}
 	}
 
 

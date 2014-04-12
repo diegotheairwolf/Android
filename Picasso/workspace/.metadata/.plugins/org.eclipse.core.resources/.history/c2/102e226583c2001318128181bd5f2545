@@ -249,6 +249,12 @@ public class Welcome extends Activity /* implements LocationListener */{
 		seize_alert_logo.clearAnimation();
 		seize_alert_motto.clearAnimation();
 		pebble_status.clearAnimation();
+		
+		// Handle Pebble data logging
+		if (mDataLogReceiver != null) {
+			unregisterReceiver(mDataLogReceiver);
+			mDataLogReceiver = null;
+		}
 	}
 
 
@@ -283,7 +289,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 							Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
 									"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
 
-						} else {
+						}else{
 							// can't get location
 							// GPS or Network is not enabled
 							// Ask user to enable GPS/network in settings
