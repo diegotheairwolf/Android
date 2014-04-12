@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">SeizeAlert</string>
-    <string name="welcome_header">Main Menu</string>
+    <string name="welcome_header">SeizeAlert</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="seizealert_logo">SeizeAlert Logo</string>
