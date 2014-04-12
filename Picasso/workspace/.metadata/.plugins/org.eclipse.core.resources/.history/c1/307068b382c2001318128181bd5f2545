@@ -500,7 +500,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 		        new NotificationCompat.Builder(this)
 		        .setSmallIcon(R.drawable.seizealert_logo_notification)
 		        .setContentTitle("SeizeAlert!")
-		        .setContentText("A fall has been reported to you contacts.");
+		        .setContentText("A fall has been reported to you contacts");
 		// Creates an explicit intent for an Activity in your app
 		Intent resultIntent = new Intent(this, Welcome.class);
 

@@ -499,8 +499,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 		NotificationCompat.Builder mBuilder =
 		        new NotificationCompat.Builder(this)
 		        .setSmallIcon(R.drawable.seizealert_logo_notification)
-		        .setContentTitle("SeizeAlert!")
-		        .setContentText("A fall has been reported to you contacts.");
+		        .setContentTitle("My notification")
+		        .setContentText("Hello World!");
 		// Creates an explicit intent for an Activity in your app
 		Intent resultIntent = new Intent(this, Welcome.class);
 
@@ -523,7 +523,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		
 		// mId allows you to update the notification later on.
-		mId++;
 		mNotificationManager.notify(mId, mBuilder.build());
 		
 	}
