@@ -1,7 +1,7 @@
 /*
 * SeizeAlert - A Seizure Notification and Detection System.
 *
-* Copyright © 2014 Pablo S. Campos, Diego Moreno, and Andoni Mendoza.
+* Copyright � 2014 Pablo S. Campos, Diego Moreno, and Andoni Mendoza.
 *
 * No part of this application may be reproduced without the before mentioned people's express consent.
 *
@@ -254,118 +254,101 @@ public class Welcome extends Activity /* implements LocationListener */{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
-		
-		// Request updates at startup
-		// locationManager.requestLocationUpdates(provider, 0, 0, this);
+		if (mDataLogReceiver == null) {
+			mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
+				String event = new String();
 
-		mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
-			String event = new String();
+				@Override
+				public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
+						UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
 
-			@Override
-			public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
-					UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
+					if (last_timestamp!=timestamp){
+						last_timestamp=timestamp;
+						//handler.notify();
+						event = SeizeAlert.fromInt(tag.intValue()).getName();
+						SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+						String username = prefs.getString("username", "");
 
-				if (last_timestamp!=timestamp){
-					last_timestamp=timestamp;
-					//handler.notify();
-					event = SeizeAlert.fromInt(tag.intValue()).getName();
-					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-					String username = prefs.getString("username", "");
+						// create class object
+						gps = new GPSTracker(Welcome.this);
 
-					// create class object
-					gps = new GPSTracker(Welcome.this);
+						// check if GPS enabled	
+						if(gps.canGetLocation()){
 
-					// check if GPS enabled	
-					if(gps.canGetLocation()){
+							latitude = gps.getLatitude();
+							longitude = gps.getLongitude();
 
-						latitude = gps.getLatitude();
-						longitude = gps.getLongitude();
+							// \n is for new line
+							Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
+									"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
 
-						// \n is for new line
-						Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
-								"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+						}else{
+							// can't get location
+							// GPS or Network is not enabled
+							// Ask user to enable GPS/network in settings
+							gps.showSettingsAlert();
+						}
 
-					}else{
-						// can't get location
-						// GPS or Network is not enabled
-						// Ask user to enable GPS/network in settings
-						gps.showSettingsAlert();
+
+						if ( event.equals("fall") ){
+							displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+
+
+							// Email
+							// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+							sendMail("pablo.campos@utexas.edu", alert_heading, alert_start + username + 
+									alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
+
+							// Location SMS
+							Intent intentlocationsms = new Intent(context, LocationSMS.class);
+							intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
+							intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+							startService(intentlocationsms);
+
+							// Play Audio
+							Intent intentplayaudio = new Intent(context, PlayAudio.class);
+							startService(intentplayaudio);
+
+
+
+						} else if ( event.equals("seizure") ){
+							displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+
+							// Email
+							// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+							sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+									alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
+
+							// Location SMS
+							Intent intentlocationsms = new Intent(context, LocationSMS.class);
+							intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
+							intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+							startService(intentlocationsms);
+
+							// Play Audio
+							Intent intentplayaudio = new Intent(context, PlayAudio.class);
+							startService(intentplayaudio);
+
+
+
+						} else if ( event.equals("countdown") ){
+							displayAlertMessage("Alert!!!", "Is this a false alert? Please press the SELECT button on your Pebble.");
+
+							// Play Sound for 10 seconds
+							Intent intentplaysound = new Intent(context, PlaySound.class);
+							startService(intentplaysound);
+
+							// Vibrate for 10000 milliseconds - 10 seconds
+							Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+							v.vibrate(vibPattern, -1);
+						}
 					}
+				}   
+			};
 
-
-					if ( event.equals("fall") ){
-						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
-
-
-						// Email
-						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
-								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
-
-						/*
-					// SMS
-					String message = alert_start + username + alert_seizure_body + 
-							alert_location + latitude + "," + longitude + ". " + alert_end;
-					sendSMS("5129445248", message);
-						 */
-
-						// Location SMS
-						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
-						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
-						startService(intentlocationsms);
-
-						// Play Audio
-						Intent intentplayaudio = new Intent(context, PlayAudio.class);
-						startService(intentplayaudio);
-
-
-
-					} else if ( event.equals("seizure") ){
-						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
-
-						// Email
-						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
-								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
-
-						/*
-					// SMS
-					String message = alert_start + username + alert_seizure_body + 
-							alert_location + latitude + "," + longitude + ". " + alert_end;
-					sendSMS("5129445248", message);
-						 */
-
-						// Location SMS
-						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
-						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
-						startService(intentlocationsms);
-
-						// Play Audio
-						Intent intentplayaudio = new Intent(context, PlayAudio.class);
-						startService(intentplayaudio);
-
-
-
-					} else if ( event.equals("countdown") ){
-						displayAlertMessage("Alert!!!", "Is this a false alert? Please press the SELECT button on your Pebble.");
-
-						// Play Sound for 10 seconds
-						Intent intentplaysound = new Intent(context, PlaySound.class);
-						startService(intentplaysound);
-
-						// Vibrate for 10000 milliseconds - 10 seconds
-						Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-						v.vibrate(vibPattern, -1);
-					}
-				}
-			}            
-		};
-
-		PebbleKit.registerDataLogReceiver(this, mDataLogReceiver);
-		PebbleKit.requestDataLogsForApp(this, SEIZE_ALERT_APP_UUID);
+			PebbleKit.registerDataLogReceiver(this, mDataLogReceiver);
+			PebbleKit.requestDataLogsForApp(this, SEIZE_ALERT_APP_UUID);
+		}
 	}
 
 
