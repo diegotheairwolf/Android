@@ -22,10 +22,10 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:logo="@drawable/ic_launcher"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme" android:name="">
         <activity
             android:name="com.example.seizealert.Welcome"
-            android:label="@string/app_name" >
+            android:label="@string/"welcome_header"" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
