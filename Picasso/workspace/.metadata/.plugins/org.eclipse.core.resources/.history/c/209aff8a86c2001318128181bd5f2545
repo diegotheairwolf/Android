@@ -131,8 +131,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 		//set up full screen
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		 */
-		setContentView(R.layout.activity_welcome);
+*/		setContentView(R.layout.activity_welcome);
 		DATE_FORMAT.setTimeZone(TimeZone.getDefault());
 
 		// Sound welcome song
@@ -264,9 +263,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 				public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
 						UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
 
-					if (last_timestamp==timestamp){
-						Log.i("TIMESTAMP", "Last timestampt was the same as the current one.");
-					}
 					if (last_timestamp!=timestamp){
 						last_timestamp=timestamp;
 						//handler.notify();

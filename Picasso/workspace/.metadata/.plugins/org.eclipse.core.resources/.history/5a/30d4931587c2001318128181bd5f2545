@@ -264,9 +264,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 				public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
 						UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
 
-					if (last_timestamp==timestamp){
-						Log.i("TIMESTAMP", "Last timestampt was the same as the current one.");
-					}
+					
 					if (last_timestamp!=timestamp){
 						last_timestamp=timestamp;
 						//handler.notify();
