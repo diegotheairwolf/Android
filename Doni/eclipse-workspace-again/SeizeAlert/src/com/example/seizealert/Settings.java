@@ -27,15 +27,20 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Data;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -165,10 +170,13 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 			// *** maybe at start of app prompt user to input at least one contact ***
 			Set<String> defaultContactListSetToPut = new HashSet<String>();
 			
+			/*
 			ArrayList<String> allContacts = getAllContacts();
 			for(String contact: allContacts) {
 				defaultContactListSetToPut.add(contact);
 			}
+			*/
+			
 			/*
 			defaultContactListSetToPut.add("name: John Doe number: 111 222 3333 email: john@mail.com");
 			defaultContactListSetToPut.add("name: Jane Smith number: 444 555 6666 email: jane@mail.com");
@@ -203,13 +211,10 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
 		CharSequence[] deleteContactsListPrefEntries = new CharSequence[storedContacts.size()];
 		int index = 0;
-		for(String contact : storedContacts) {
-			// so populate the listpreference for add xor delete here and do another one of the foreach 
-			// loops for the other
+		ArrayList<String> storedContactsSorted = sortContacts(storedContacts);
+		for(String contact : storedContactsSorted) {
 			deleteContactsListPrefEntries[index] = contact;
 			index++;
-			// CheckBoxPreference checkbox = new CheckBoxPreference(this);
-			// editContactsPrefScreen.addPreference(contact);
 		}
 		CharSequence[] deleteContactsListPrefEntryValues = new CharSequence[storedContacts.size()];
 		for(int i = 0; i < storedContacts.size(); i++) {
@@ -225,6 +230,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		CharSequence[] addContactsListPrefEntries = new CharSequence[allContacts.size()];
 		CharSequence[] addContactsListPrefEntryValues = new CharSequence[allContacts.size()];
 		index = 0;
+		java.util.Collections.sort(allContacts, new ContactComparator());
 		for(String contact : allContacts) {
 			addContactsListPrefEntries[index] = contact;
 			addContactsListPrefEntryValues[index] = contact;
@@ -282,11 +288,51 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	}
 	
 	
+	
+	public static ArrayList<String> sortContacts(Set<String> contacts) {
+		
+		ArrayList<String> list = new ArrayList<String>();
+		for(String contact : contacts) {
+			list.add(contact);
+		}
+				
+		java.util.Collections.sort(list, new ContactComparator());
+		
+		return list;
+	}
+	
+	
+	
+	public static String getName(String contact) {
+		int index = contact.indexOf(" number: ");
+		
+		String r = contact.substring(0, index);
+		return r;
+	}
+	
+	
+	
+	static public class ContactComparator implements Comparator<String> {
+
+        public int compare(String c1, String c2) {
+        	
+        	String name1 = getName(c1);
+        	String name2 = getName(c2);
+        	
+            return name1.compareTo(name2);
+        }
+
+    }
+	
+	
+	
 	private void setupOnSharedPreferenceChangedListener() {
 		// register shared pref to be listened to
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);
 	}
+	
+	
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
@@ -325,7 +371,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 				CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
 				CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
 				int index = 0;
-				for(String contact : updatedStoredContacts) {
+				ArrayList<String> updatedStoredContactsSorted = sortContacts(updatedStoredContacts);
+				for(String contact : updatedStoredContactsSorted) {
 					entries[index] = contact;
 					entryValues[index] = contact;
 					index += 1;
@@ -362,7 +409,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 				CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
 				CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
 				int index = 0;
-				for(String contact : updatedStoredContacts) {
+				ArrayList<String> updatedStoredContactsSorted = sortContacts(updatedStoredContacts);
+				for(String contact : updatedStoredContactsSorted) {
 					entries[index] = contact;
 					entryValues[index] = contact;
 					index += 1;
@@ -379,16 +427,20 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		// updateContactView();
 	}
 	
+	
+	
 	private void displayStoredContacts() {
 		Set<String> storedContacts = getStoredContacts();
 		String message = "";
-		for(String contact : storedContacts) {
+		ArrayList<String> storedContactsSorted = sortContacts(storedContacts);
+		for(String contact : storedContactsSorted) {
 			message += contact;
 			message += "\n";
 		}
   
     	Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 	}
+	
 	
 	
 	/*
@@ -412,30 +464,32 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	}
 	
 	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private ArrayList<String> getAllContacts() {
+		
+		ContentResolver resolver = getContentResolver();
+		Cursor c = resolver.query(
+		        Data.CONTENT_URI, 
+		        null, 
+		        Data.HAS_PHONE_NUMBER + "!=0 AND (" + Data.MIMETYPE + "=? OR " + Data.MIMETYPE + "=?)", 
+		        new String[]{Email.CONTENT_ITEM_TYPE, Phone.CONTENT_ITEM_TYPE},
+		        Data.CONTACT_ID);
+
 		ArrayList<String> contacts = new ArrayList<String>();
-		ContentResolver cr = getContentResolver();
-		Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-		if (cur.getCount() > 0) {
-			while (cur.moveToNext()) {
-				String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-				String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-	            if (Integer.parseInt(cur.getString(
-	            		cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-	            	Cursor pCur = cr.query(
-	            			ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
-	                               ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
-	                               new String[]{id}, null);
-	                while (pCur.moveToNext()) {
-	                	String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-	                	Log.i("***settings***", "in displayContacts");
-	                	contacts.add("name: " + name + " number: " + phoneNo);
-	                	// Toast.makeText(NativeContentProvider.this, "Name: " + name + ", Phone No: " + phoneNo, Toast.LENGTH_SHORT).show();
-	                }
-	                pCur.close();
-	           }
-	        }	            
-	    }
+		
+		while (c.moveToNext()) {
+		    long id = c.getLong(c.getColumnIndex(Data.CONTACT_ID));
+		    String name = c.getString(c.getColumnIndex(Data.DISPLAY_NAME));
+		    String number = c.getString(c.getColumnIndex(Data.DATA1));
+
+		    c.moveToNext();
+		    String email = c.getString(c.getColumnIndex(Data.DATA1));
+		    
+		    String contact = "name: " + name + " number: " + number + " email: " + email;
+		    contacts.add(contact);	    
+		}
+		
+		
 		return contacts;
 	}
 	
@@ -477,7 +531,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		}
 	}
 	
-
+	
 	/**
 	 * A preference value change listener that updates the preference's summary
 	 * to reflect its new value.

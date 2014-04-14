@@ -1,0 +1,670 @@
+package com.example.seizealert;
+
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+import android.preference.RingtonePreference;
+import android.provider.ContactsContract;
+import android.text.TextUtils;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * A {@link PreferenceActivity} that presents a set of application settings. On
+ * handset devices, settings are presented as a single list. On tablets,
+ * settings are split by category, with category headers shown to the left of
+ * the list of settings.
+ * <p>
+ * See <a href="http://developer.android.com/design/patterns/settings.html">
+ * Android Design: Settings</a> for design guidelines and the <a
+ * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
+ * API Guide</a> for more information on developing a Settings UI.
+ */
+public class Settings extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+	
+	// added this due to http://stackoverflow.com/questions/12551854/building-preference-screen-in-code-depending-on-another-setting
+	public static final String KEY_EDIT_CONTACTS = "edit_contacts";
+	public static final String KEY_CONTACTSTOADDLIST = "key_contactsToAddList";
+	public static final String KEY_CONTACTLIST_SHAREDPREF = "contactList";
+	
+	/**
+	 * Determines whether to always show the simplified settings UI, where
+	 * settings are presented in a single list. When false, settings are shown
+	 * as a master/detail two-pane view on tablets. When true, a single pane is
+	 * shown on tablets.
+	 */
+	private static final boolean ALWAYS_SIMPLE_PREFS = false;
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+		setupSimplePreferencesScreen();
+		
+		setupOnSharedPreferenceChangedListener();
+				
+		// Access to the LOCATION ACCESS GPS preference
+		Preference goToGPS = (Preference) findPreference("gps");
+		goToGPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+		        public boolean onPreferenceClick(Preference preference) {
+		            Intent viewIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+		            startActivity(viewIntent);
+
+		            return true;
+		        }
+		});
+	
+	}
+
+	/**
+	 * Shows the simplified settings UI if the device configuration if the
+	 * device configuration dictates that a simplified, single-pane UI should be
+	 * shown.
+	 */
+	@SuppressLint("NewApi")
+	private void setupSimplePreferencesScreen() {
+		if (!isSimplePreferences(this)) {
+			return;
+		}
+
+		// In the simplified UI, fragments are not used at all and we instead
+		// use the older PreferenceActivity APIs.
+
+		// Add 'general' preferences.
+		addPreferencesFromResource(R.xml.pref_general);
+
+		// Add 'notifications' preferences, and a corresponding header.
+		PreferenceCategory fakeHeader = new PreferenceCategory(this);
+		fakeHeader.setTitle(R.string.pref_header_notifications);
+		getPreferenceScreen().addPreference(fakeHeader);
+		addPreferencesFromResource(R.xml.pref_notification);
+
+		// Add 'data and sync' preferences, and a corresponding header.
+		fakeHeader = new PreferenceCategory(this);
+		fakeHeader.setTitle(R.string.pref_header_data_sync);
+		getPreferenceScreen().addPreference(fakeHeader);
+		addPreferencesFromResource(R.xml.pref_data_sync);
+		
+		// Add 'contacts' preferences, and a corresponding header.
+		fakeHeader = new PreferenceCategory(this);
+		fakeHeader.setTitle(R.string.pref_header_contacts);
+		getPreferenceScreen().addPreference(fakeHeader);
+		addPreferencesFromResource(R.xml.pref_contacts);
+		
+		// Add 'bluetooth' preferences, and a corresponding header.
+		fakeHeader = new PreferenceCategory(this);
+		fakeHeader.setTitle(R.string.pref_header_connectivity);
+		getPreferenceScreen().addPreference(fakeHeader);
+		addPreferencesFromResource(R.xml.pref_connectivity);
+		
+		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
+		// their values. When their values change, their summaries are updated
+		// to reflect the new value, per the Android Design guidelines.
+		bindPreferenceSummaryToValue(findPreference("username"));
+		bindPreferenceSummaryToValue(findPreference("example_list"));
+		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+		bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+		// bindPreferenceSummaryToValue(findPreference("add_contacts_multiselect_list_preference"));
+		// bindPreferenceSummaryToValue(findPreference("delete_contacts_multiselect_list_preference"));
+		bindPreferenceSummaryToValue(findPreference("bluetooth"));
+		bindPreferenceSummaryToValue(findPreference("gps"));
+		
+		
+		
+		
+		
+		// we now retrieve list of contacts and display
+		// http://stackoverflow.com/questions/3572463/what-is-context-in-android
+		// used to have context as argument, but had error, so tried that above
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		SharedPreferences.Editor editorTemp = preferences.edit();
+		// editorTemp.remove(KEY_CONTACTLIST_SHAREDPREF).commit();
+		editorTemp.remove("add_contacts_multiselect_list_preference").commit();
+		editorTemp.remove("delete_contacts_multiselect_list_preference").commit();
+		
+		//editorTemp.clear().commit();
+		//editorTemp.clear().apply();
+		
+		
+		
+		
+		
+		// check if editor has contactList
+		if(!preferences.contains(KEY_CONTACTLIST_SHAREDPREF)) {
+			// if not, then add some default contacts
+			// *** maybe at start of app prompt user to input at least one contact ***
+			Set<String> defaultContactListSetToPut = new HashSet<String>();
+			
+			ArrayList<String> allContacts = getAllContacts();
+			for(String contact: allContacts) {
+				defaultContactListSetToPut.add(contact);
+			}
+			/*
+			defaultContactListSetToPut.add("name: John Doe number: 111 222 3333 email: john@mail.com");
+			defaultContactListSetToPut.add("name: Jane Smith number: 444 555 6666 email: jane@mail.com");
+			*/
+			// had to add @SuppressLint("NewApi")
+			// to top of this method cuz target min api too low
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, defaultContactListSetToPut);
+			editor.apply();
+			// editor.commit();
+		}
+		
+		
+		
+		/*
+		// added this cuz http://stackoverflow.com/questions/12551854/building-preference-screen-in-code-depending-on-another-setting
+		// also, added global KEY_EDIT_CONTACTS way above 
+		// get the edit contacts screen preference
+		PreferenceScreen editContactsPrefScreen = (PreferenceScreen)getPreferenceScreen().findPreference(KEY_EDIT_CONTACTS);
+		*/
+		
+		
+		/*
+		 * alright so the dynamic checkboxes aren't working because
+		 * cant .addPreference(somecheckboxpreference)
+		 * so what we can do is on click of add/delete contact, pop up
+		 * a list preference and the result of that shit is what you add/delete
+		 */
+		
+		// for all contacts in sharedPreference
+		Set<String> storedContacts = preferences.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+		MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+		CharSequence[] deleteContactsListPrefEntries = new CharSequence[storedContacts.size()];
+		int index = 0;
+		for(String contact : storedContacts) {
+			// so populate the listpreference for add xor delete here and do another one of the foreach 
+			// loops for the other
+			deleteContactsListPrefEntries[index] = contact;
+			index++;
+			// CheckBoxPreference checkbox = new CheckBoxPreference(this);
+			// editContactsPrefScreen.addPreference(contact);
+		}
+		CharSequence[] deleteContactsListPrefEntryValues = new CharSequence[storedContacts.size()];
+		for(int i = 0; i < storedContacts.size(); i++) {
+			deleteContactsListPrefEntryValues[i] = deleteContactsListPrefEntries[i];
+		}
+		deleteContactsListPref.setEntries(deleteContactsListPrefEntries);
+		deleteContactsListPref.setEntryValues(deleteContactsListPrefEntryValues);
+		
+		
+		
+		MultiSelectListPreference addContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("add_contacts_multiselect_list_preference");
+		ArrayList<String> allContacts = getAllContacts();
+		CharSequence[] addContactsListPrefEntries = new CharSequence[allContacts.size()];
+		CharSequence[] addContactsListPrefEntryValues = new CharSequence[allContacts.size()];
+		index = 0;
+		for(String contact : allContacts) {
+			addContactsListPrefEntries[index] = contact;
+			addContactsListPrefEntryValues[index] = contact;
+			index += 1;
+		}
+		addContactsListPref.setEntries(addContactsListPrefEntries);
+		addContactsListPref.setEntryValues(addContactsListPrefEntryValues);
+
+		
+		
+		Preference viewContactsPref = (Preference) findPreference("view_contacts");
+		viewContactsPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+            	Log.i("***settings***", "pref click: viewContacsPref!");            	
+            	displayStoredContacts();
+            	return true;
+            }
+        });
+		
+		
+		/*
+		Preference addPref = (Preference) findPreference("add_contact");
+		addPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                //open browser or intent here
+            	Log.i("***settings***", "pref click!");
+            	ArrayList<String> contacts = getAllContacts();
+            	
+            	// return true if click was handled well
+            	return true;
+            }
+        });
+        */
+		/*
+		Preference deletePref = (Preference) findPreference("delete_contact");
+		deletePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                //open browser or intent here
+            	PreferenceScreen editContactsScreen = (PreferenceScreen) getPreferenceManager().findPreference("edit_contacts");
+            	
+            	// count which boxes are clicked (or the result of ListPreference)
+            	// then foreach, delete
+            	
+            	// but just do this in the meantime just remove the "whatevs" preference
+            	Preference whatevs = getPreferenceManager().findPreference("some_key");
+            	if(whatevs != null)
+                	editContactsScreen.removePreference(whatevs);
+            	
+            	return true;
+            }		
+		});
+		*/
+		
+		Log.i("***setings***", "exiting setupSimplePreferencesScreens");
+	}
+	
+	
+	private void setupOnSharedPreferenceChangedListener() {
+		// register shared pref to be listened to
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.registerOnSharedPreferenceChangeListener(this);
+	}
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+		
+		/*
+		 * maybe make sure to remove sharedpreference 
+		 * or delete anything without the 'name:' substring or 
+		 * delete repeats
+		 */
+		
+		if (key.equals("delete_contacts_multiselect_list_preference")) {			
+			Set<String> selections = prefs.getStringSet(key, null);
+			
+			if (selections != null) {
+				
+				Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+				
+				Set<String> updatedStoredContacts = new HashSet<String>();
+				for(String contact : storedContacts) {
+					if (!selections.contains(contact))
+						updatedStoredContacts.add(contact);
+				}
+					
+				SharedPreferences.Editor editor = prefs.edit();
+				
+				/*
+				 * cant do this bc then goes back into this function
+				editor.remove(KEY_CONTACTLIST_SHAREDPREF);
+				editor.commit();
+				*/
+				
+				editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
+				editor.apply();
+				// editor.commit();
+				
+				CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
+				CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
+				int index = 0;
+				for(String contact : updatedStoredContacts) {
+					entries[index] = contact;
+					entryValues[index] = contact;
+					index += 1;
+				}
+				
+				MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+				deleteContactsListPref.setEntries(entries);
+				deleteContactsListPref.setEntryValues(entryValues);
+				
+				
+				Log.i("***settings***", "aw yiss");		
+				
+			}
+		} else if (key.equals("add_contacts_multiselect_list_preference")) {
+			Set<String> selections = prefs.getStringSet(key, null);
+			
+			if(selections != null) {
+			
+				Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+				
+				Set<String> updatedStoredContacts = new HashSet<String>();
+				for(String contact : selections) {
+					updatedStoredContacts.add(contact);
+				}
+				for(String contact : storedContacts) {
+					updatedStoredContacts.add(contact);
+				}
+				
+				SharedPreferences.Editor editor = prefs.edit();
+				editor.putStringSet(KEY_CONTACTLIST_SHAREDPREF, updatedStoredContacts);
+				editor.apply();
+				// editor.commit();
+				
+				CharSequence[] entries = new CharSequence[updatedStoredContacts.size()];
+				CharSequence[] entryValues = new CharSequence[updatedStoredContacts.size()];
+				int index = 0;
+				for(String contact : updatedStoredContacts) {
+					entries[index] = contact;
+					entryValues[index] = contact;
+					index += 1;
+				}
+				
+				MultiSelectListPreference deleteContactsListPref = (MultiSelectListPreference) getPreferenceManager().findPreference("delete_contacts_multiselect_list_preference");
+				deleteContactsListPref.setEntries(entries);
+				deleteContactsListPref.setEntryValues(entryValues);
+				
+				Log.i("***settings***", "aw yiss");
+			}
+		}
+		
+		// updateContactView();
+	}
+	
+	private void displayStoredContacts() {
+		Set<String> storedContacts = getStoredContacts();
+		String message = "";
+		for(String contact : storedContacts) {
+			message += contact;
+			message += "\n";
+		}
+  
+    	Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+	}
+	
+	
+	/*
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void updateContactView() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+		
+		PreferenceScreen editContactsPrefScreen = (PreferenceScreen)getPreferenceScreen().findPreference(KEY_EDIT_CONTACTS);
+		
+		
+	}
+	*/
+	
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private Set<String> getStoredContacts() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		Set<String> storedContacts = prefs.getStringSet(KEY_CONTACTLIST_SHAREDPREF, null);
+		return storedContacts;
+	}
+	
+	
+	private ArrayList<String> getAllContacts() {
+		ArrayList<String> contacts = new ArrayList<String>();
+		ContentResolver cr = getContentResolver();
+		Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+		if (cur.getCount() > 0) {
+			while (cur.moveToNext()) {
+				String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+				String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+	            if (Integer.parseInt(cur.getString(
+	            		cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+	            	Cursor pCur = cr.query(
+	            			ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
+	                               ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
+	                               new String[]{id}, null);
+	                while (pCur.moveToNext()) {
+	                	String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+	                	String email = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
+	                	Log.i("***settings***", "in displayContacts");
+	                	contacts.add("name: " + name + " number: " + phoneNo);
+	                	// Toast.makeText(NativeContentProvider.this, "Name: " + name + ", Phone No: " + phoneNo, Toast.LENGTH_SHORT).show();
+	                }
+	                pCur.close();
+	           }
+	        }	            
+	    }
+		return contacts;
+	}
+	
+	
+
+	/** {@inheritDoc} */
+	@Override
+	public boolean onIsMultiPane() {
+		return isXLargeTablet(this) && !isSimplePreferences(this);
+	}
+
+	/**
+	 * Helper method to determine if the device has an extra-large screen. For
+	 * example, 10" tablets are extra-large.
+	 */
+	private static boolean isXLargeTablet(Context context) {
+		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+	}
+
+	/**
+	 * Determines whether the simplified settings UI should be shown. This is
+	 * true if this is forced via {@link #ALWAYS_SIMPLE_PREFS}, or the device
+	 * doesn't have newer APIs like {@link PreferenceFragment}, or the device
+	 * doesn't have an extra-large screen. In these cases, a single-pane
+	 * "simplified" settings UI should be shown.
+	 */
+	private static boolean isSimplePreferences(Context context) {
+		return ALWAYS_SIMPLE_PREFS
+				|| Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
+				|| !isXLargeTablet(context);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public void onBuildHeaders(List<Header> target) {
+		if (!isSimplePreferences(this)) {
+			loadHeadersFromResource(R.xml.pref_headers, target);
+		}
+	}
+	
+
+	/**
+	 * A preference value change listener that updates the preference's summary
+	 * to reflect its new value.
+	 */
+	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+		@Override
+		public boolean onPreferenceChange(Preference preference, Object value) {
+			String stringValue = value.toString();
+			
+			
+
+			if (preference instanceof ListPreference) {
+				// For list preferences, look up the correct display value in
+				// the preference's 'entries' list.
+				ListPreference listPreference = (ListPreference) preference;
+				int index = listPreference.findIndexOfValue(stringValue);
+
+				// Set the summary to reflect the new value.
+				preference
+						.setSummary(index >= 0 ? listPreference.getEntries()[index]
+								: null);
+
+			} else if (preference instanceof RingtonePreference) {
+				// For ringtone preferences, look up the correct display value
+				// using RingtoneManager.
+				if (TextUtils.isEmpty(stringValue)) {
+					// Empty values correspond to 'silent' (no ringtone).
+					preference.setSummary(R.string.pref_ringtone_silent);
+
+				} else {
+					Ringtone ringtone = RingtoneManager.getRingtone(
+							preference.getContext(), Uri.parse(stringValue));
+
+					if (ringtone == null) {
+						// Clear the summary if there was a lookup error.
+						preference.setSummary(null);
+					} else {
+						// Set the summary to reflect the new ringtone display
+						// name.
+						String name = ringtone
+								.getTitle(preference.getContext());
+						preference.setSummary(name);
+					}
+				}
+
+			}  else {
+				// For all other preferences, set the summary to the value's
+				// simple string representation.
+				preference.setSummary(stringValue);
+			}
+			return true;
+		}
+	};
+
+	/**
+	 * Binds a preference's summary to its value. More specifically, when the
+	 * preference's value is changed, its summary (line of text below the
+	 * preference title) is updated to reflect the value. The summary is also
+	 * immediately updated upon calling this method. The exact display format is
+	 * dependent on the type of preference.
+	 * 
+	 * @see #sBindPreferenceSummaryToValueListener
+	 */
+	private static void bindPreferenceSummaryToValue(Preference preference) {
+		// Set the listener to watch for value changes.
+		preference
+				.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+		// Trigger the listener immediately with the preference's
+		// current value.
+		sBindPreferenceSummaryToValueListener.onPreferenceChange(
+				preference,
+				PreferenceManager.getDefaultSharedPreferences(
+						preference.getContext()).getString(preference.getKey(),
+						""));
+	}
+
+	/**
+	 * This fragment shows general preferences only. It is used when the
+	 * activity is showing a two-pane settings UI.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class GeneralPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_general);
+
+			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
+			// to their values. When their values change, their summaries are
+			// updated to reflect the new value, per the Android Design
+			// guidelines.
+			bindPreferenceSummaryToValue(findPreference("username"));
+			bindPreferenceSummaryToValue(findPreference("example_list"));
+			
+			
+			
+			
+			
+		}
+	}
+
+	/**
+	 * This fragment shows notification preferences only. It is used when the
+	 * activity is showing a two-pane settings UI.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class NotificationPreferenceFragment extends
+			PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_notification);
+
+			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
+			// to their values. When their values change, their summaries are
+			// updated to reflect the new value, per the Android Design
+			// guidelines.
+			bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+		}
+	}
+
+	/**
+	 * This fragment shows data and sync preferences only. It is used when the
+	 * activity is showing a two-pane settings UI.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class DataSyncPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_data_sync);
+
+			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
+			// to their values. When their values change, their summaries are
+			// updated to reflect the new value, per the Android Design
+			// guidelines.
+			bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+		}
+	}
+	
+	
+	/**
+	 * This fragment shows header preferences only. It is used when the
+	 * activity is showing a two-pane settings UI.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class ContactsPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_contacts);
+
+			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
+			// to their values. When their values change, their summaries are
+			// updated to reflect the new value, per the Android Design
+			// guidelines.
+			bindPreferenceSummaryToValue(findPreference("edit_contacts"));
+			bindPreferenceSummaryToValue(findPreference("add_contacts_multiselect_list_preference"));
+			bindPreferenceSummaryToValue(findPreference("delete_contacts_multiselect_list_preference"));
+			
+		}
+	}
+	
+	
+	/**
+	 * This fragment shows bluetooth preferences only. It is used when the
+	 * activity is showing a two-pane settings UI.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static class BluetoothPreferenceFragment extends PreferenceFragment {
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.pref_connectivity);
+
+			// Bind the summaries of EditText/List/Dialog/Ringtone preferences
+			// to their values. When their values change, their summaries are
+			// updated to reflect the new value, per the Android Design
+			// guidelines.
+			
+			
+			bindPreferenceSummaryToValue(findPreference("bluetooth"));
+			bindPreferenceSummaryToValue(findPreference("gps"));
+		}
+	}
+	
+	
+}
