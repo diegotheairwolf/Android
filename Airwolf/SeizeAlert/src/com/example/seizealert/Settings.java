@@ -1,26 +1,46 @@
 package com.example.seizealert;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Data;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -34,6 +54,12 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class Settings extends PreferenceActivity {
+	
+	// added this due to http://stackoverflow.com/questions/12551854/building-preference-screen-in-code-depending-on-another-setting
+	public static final String KEY_EDIT_CONTACTS = "edit_contacts";
+	public static final String KEY_CONTACTSTOADDLIST = "key_contactsToAddList";
+	public static final String KEY_CONTACTLIST_SHAREDPREF = "contactList";
+	
 	/**
 	 * Determines whether to always show the simplified settings UI, where
 	 * settings are presented in a single list. When false, settings are shown
@@ -47,7 +73,7 @@ public class Settings extends PreferenceActivity {
 		super.onPostCreate(savedInstanceState);
 
 		setupSimplePreferencesScreen();
-		
+				
 		// Access to the LOCATION ACCESS GPS preference
 		Preference goToGPS = (Preference) findPreference("gps");
 		goToGPS.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -59,6 +85,7 @@ public class Settings extends PreferenceActivity {
 		            return true;
 		        }
 		});
+	
 	}
 
 	/**
@@ -66,6 +93,7 @@ public class Settings extends PreferenceActivity {
 	 * device configuration dictates that a simplified, single-pane UI should be
 	 * shown.
 	 */
+	@SuppressLint("NewApi")
 	private void setupSimplePreferencesScreen() {
 		if (!isSimplePreferences(this)) {
 			return;
@@ -78,19 +106,19 @@ public class Settings extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.pref_general);
 
 		// Add 'notifications' preferences, and a corresponding header.
-		PreferenceCategory fakeHeader = new PreferenceCategory(this);
-		fakeHeader.setTitle(R.string.pref_header_notifications);
-		getPreferenceScreen().addPreference(fakeHeader);
-		addPreferencesFromResource(R.xml.pref_notification);
+		//PreferenceCategory fakeHeader = new PreferenceCategory(this);
+		//fakeHeader.setTitle(R.string.pref_header_notifications);
+		//getPreferenceScreen().addPreference(fakeHeader);
+		//addPreferencesFromResource(R.xml.pref_notification);
 
 		// Add 'data and sync' preferences, and a corresponding header.
-		fakeHeader = new PreferenceCategory(this);
-		fakeHeader.setTitle(R.string.pref_header_data_sync);
-		getPreferenceScreen().addPreference(fakeHeader);
-		addPreferencesFromResource(R.xml.pref_data_sync);
+		//fakeHeader = new PreferenceCategory(this);
+		//fakeHeader.setTitle(R.string.pref_header_data_sync);
+		//getPreferenceScreen().addPreference(fakeHeader);
+		//addPreferencesFromResource(R.xml.pref_data_sync);
 		
 		// Add 'contacts' preferences, and a corresponding header.
-		fakeHeader = new PreferenceCategory(this);
+		PreferenceCategory fakeHeader = new PreferenceCategory(this);
 		fakeHeader.setTitle(R.string.pref_header_contacts);
 		getPreferenceScreen().addPreference(fakeHeader);
 		addPreferencesFromResource(R.xml.pref_contacts);
@@ -101,20 +129,164 @@ public class Settings extends PreferenceActivity {
 		getPreferenceScreen().addPreference(fakeHeader);
 		addPreferencesFromResource(R.xml.pref_connectivity);
 		
-		
-
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
 		bindPreferenceSummaryToValue(findPreference("username"));
-		bindPreferenceSummaryToValue(findPreference("example_list"));
-		bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-		bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-		bindPreferenceSummaryToValue(findPreference("add_contact"));
-		bindPreferenceSummaryToValue(findPreference("delete_contact"));
+		//bindPreferenceSummaryToValue(findPreference("example_list"));
+		//bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+		//bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+		// bindPreferenceSummaryToValue(findPreference("add_contacts_multiselect_list_preference"));
+		// bindPreferenceSummaryToValue(findPreference("delete_contacts_multiselect_list_preference"));
 		bindPreferenceSummaryToValue(findPreference("bluetooth"));
 		bindPreferenceSummaryToValue(findPreference("gps"));
+		
+		Log.i("breakpoint", "breaky");
+		
+		bindPreferenceSummaryToValue(findPreference("contact_1"));
+		bindPreferenceSummaryToValue(findPreference("contact_2"));
+		bindPreferenceSummaryToValue(findPreference("contact_3"));
+		
+		ListPreference contactOne = (ListPreference) getPreferenceScreen().findPreference("contact_1");
+		ListPreference contactTwo = (ListPreference) getPreferenceScreen().findPreference("contact_2");
+		ListPreference contactThree = (ListPreference) getPreferenceScreen().findPreference("contact_3");
+		
+		
+		// All Contacts
+		ArrayList<String> allContacts = getAllContacts();
+		allContacts = sortContacts(allContacts);
+		
+		// Contact ONE
+		CharSequence[] entriesOne = new CharSequence[allContacts.size()];
+		CharSequence[] entryValuesOne = new CharSequence[allContacts.size()];
+		int index = 0;
+		for(String contact : allContacts) {
+			entriesOne[index] = contact;
+			entryValuesOne[index] = contact;
+			index += 1;
+		}
+		
+		contactOne.setEntries(entriesOne);
+		contactOne.setEntryValues(entryValuesOne);
+		
+		// Contact TWO
+		CharSequence[] entriesTwo = new CharSequence[allContacts.size()];
+		CharSequence[] entryValuesTwo = new CharSequence[allContacts.size()];
+		index = 0;
+		for(String contact : allContacts) {
+			entriesTwo[index] = contact;
+			entryValuesTwo[index] = contact;
+			index += 1;
+		}
+		
+		contactTwo.setEntries(entriesTwo);
+		contactTwo.setEntryValues(entryValuesTwo);
+		
+		
+		// Contact THREE
+		CharSequence[] entriesThree = new CharSequence[allContacts.size()];
+		CharSequence[] entryValuesThree = new CharSequence[allContacts.size()];
+		index = 0;
+		for(String contact : allContacts) {
+			entriesThree[index] = contact;
+			entryValuesThree[index] = contact;
+			index += 1;
+		}
+		
+		contactThree.setEntries(entriesThree);
+		contactThree.setEntryValues(entryValuesThree);
+		
+		Log.i("***setings***", "exiting setupSimplePreferencesScreens");
 	}
+	
+	
+public static ArrayList<String> sortContacts(ArrayList<String> contacts) {
+		
+				
+		java.util.Collections.sort(contacts, new ContactComparator());
+		
+		return contacts;
+	}
+	
+	public static ArrayList<String> sortContacts(Set<String> contacts) {
+		
+		ArrayList<String> list = new ArrayList<String>();
+		for(String contact : contacts) {
+			list.add(contact);
+		}
+				
+		java.util.Collections.sort(list, new ContactComparator());
+		
+		return list;
+	}
+	
+	
+	
+	public static String getName(String contact) {
+		int index = contact.indexOf("\n");
+		
+		String r = contact.substring(0, index);
+		return r;
+	}
+	
+	public static String getNumber(String contact){
+		int start = contact.indexOf("\n");
+		int end = contact.lastIndexOf("\n");
+		
+		String r = contact.substring(start, end);
+		return r.trim();
+	}
+	
+	public static String getEmail(String contact){
+		int start = contact.lastIndexOf("\n");
+		int end = contact.length();
+		
+		String r = contact.substring(start, end);
+		return r.trim();
+	}
+	
+	
+	
+	static public class ContactComparator implements Comparator<String> {
+
+        public int compare(String c1, String c2) {
+        	
+        	String name1 = getName(c1);
+        	String name2 = getName(c2);
+        	
+            return name1.compareTo(name2);
+        }
+
+    }	
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private ArrayList<String> getAllContacts() {
+		
+		ContentResolver resolver = getContentResolver();
+		Cursor c = resolver.query(
+		        Data.CONTENT_URI, 
+		        null, 
+		        Data.HAS_PHONE_NUMBER + "!=0 AND (" + Data.MIMETYPE + "=? OR " + Data.MIMETYPE + "=?)", 
+		        new String[]{Email.CONTENT_ITEM_TYPE, Phone.CONTENT_ITEM_TYPE},
+		        Data.CONTACT_ID);
+
+		ArrayList<String> contacts = new ArrayList<String>();
+		
+		while (c.moveToNext()) {
+		    long id = c.getLong(c.getColumnIndex(Data.CONTACT_ID));
+		    String name = c.getString(c.getColumnIndex(Data.DISPLAY_NAME));
+		    String email = c.getString(c.getColumnIndex(Data.DATA1));
+
+		    c.moveToNext();
+		    String number = c.getString(c.getColumnIndex(Data.DATA1));
+		    
+		    String contact = name + "\n" + number + "\n" + email;
+		    contacts.add(contact);	    
+		}
+		return contacts;
+	}
+	
+	
 
 	/** {@inheritDoc} */
 	@Override
@@ -152,7 +324,7 @@ public class Settings extends PreferenceActivity {
 		}
 	}
 	
-
+	
 	/**
 	 * A preference value change listener that updates the preference's summary
 	 * to reflect its new value.
@@ -165,16 +337,22 @@ public class Settings extends PreferenceActivity {
 			
 
 			if (preference instanceof ListPreference) {
-				// For list preferences, look up the correct display value in
-				// the preference's 'entries' list.
-				ListPreference listPreference = (ListPreference) preference;
-				int index = listPreference.findIndexOfValue(stringValue);
-
-				// Set the summary to reflect the new value.
-				preference
-						.setSummary(index >= 0 ? listPreference.getEntries()[index]
-								: null);
-
+				
+				if(preference.getKey().equals("contact_1")) {
+					// For list preferences, look up the correct display value in
+					// the preference's 'entries' list.
+					ListPreference listPreference = (ListPreference) preference;
+					int index = listPreference.findIndexOfValue(stringValue);
+					// Set the summary to reflect the new value.
+					preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
+				} else {
+					// For list preferences, look up the correct display value in
+					// the preference's 'entries' list.
+					ListPreference listPreference = (ListPreference) preference;
+					int index = listPreference.findIndexOfValue(stringValue);
+					// Set the summary to reflect the new value.
+					preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
+				}
 			} else if (preference instanceof RingtonePreference) {
 				// For ringtone preferences, look up the correct display value
 				// using RingtoneManager.
@@ -247,6 +425,11 @@ public class Settings extends PreferenceActivity {
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("username"));
 			bindPreferenceSummaryToValue(findPreference("example_list"));
+			
+			
+			
+			
+			
 		}
 	}
 
@@ -306,8 +489,10 @@ public class Settings extends PreferenceActivity {
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("edit_contacts"));
-			bindPreferenceSummaryToValue(findPreference("add_contact"));
-			bindPreferenceSummaryToValue(findPreference("delete_contact"));
+			bindPreferenceSummaryToValue(findPreference("contact_1"));
+			bindPreferenceSummaryToValue(findPreference("contact_2"));
+			bindPreferenceSummaryToValue(findPreference("contact_3"));
+			
 		}
 	}
 	

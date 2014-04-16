@@ -52,9 +52,6 @@ public class LocationSMS extends IntentService {
 		// Get username currently on preferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		String username = prefs.getString("username", "");
-		if(username==null){
-			
-		}
 		
 		latitude = intent.getDoubleExtra(Welcome.EXTRA_LATITUDE, 0.0);
 		longitude = intent.getDoubleExtra(Welcome.EXTRA_LONGITUDE, 0.0);

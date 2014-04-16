@@ -1,3 +1,15 @@
+/*
+* SeizeAlert - A Seizure Notification and Detection System.
+*
+* Copyright © 2014 Pablo S. Campos, Diego Moreno, and Andoni Mendoza.
+*
+* No part of this application may be reproduced without the before mentioned people's express consent.
+*
+* For more contact SeizeAlert Inc. at seizealert@gmail.com
+* 
+*/
+
+
 package com.example.seizealert;
 
 import java.io.UnsupportedEncodingException;
@@ -28,7 +40,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.telephony.SmsManager;
-import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,7 +57,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
-import android.preference.PreferenceManager;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -80,15 +90,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 	private TextView seize_alert_motto;
 	private TextView pebble_status;
 	private TextView pebble_app_status;
-	
-	/*
-	// GPS coords 
-	private double Lat;
-	private double Lng;
-	private LocationManager locationManager;
-	private String provider;
-	*/
-	
+	private UnsignedInteger last_timestamp;
+		
 	// GPSTracker class
 	GPSTracker gps;
 	public final static String EXTRA_LATITUDE = "com.example.seizealert.LATITUDE";
@@ -166,27 +169,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 	 	seize_alert_motto.startAnimation(animationFadeInSlower);
 	 	pebble_status.startAnimation(animationFadeIn);
 	 	pebble_app_status.startAnimation(animationFadeIn);
-	 	
-	 	
-	 	/*
-	 	// Get the location manager
-	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-	    
-	    // Define the criteria how to select the location in provider -> use default
-	    Criteria criteria = new Criteria();
-	    provider = locationManager.getBestProvider(criteria, false);
-	    Log.i("GPS provider", "Selected provider" + provider);
-	    Location location = locationManager.getLastKnownLocation(provider);
-
-	    // Initialize the location fields
-	    if (location != null) {
-	    	onLocationChanged(location);
-	    } else {
-	    	Lat = 0.0;
-	    	Lng = 0.0;
-	    }
-	    */
-	 	
+	 		 	
 	 	// create class object
         gps = new GPSTracker(Welcome.this);
 	 	if(gps.canGetLocation()){
@@ -203,36 +186,7 @@ public class Welcome extends Activity /* implements LocationListener */{
         	// GPS or Network is not enabled
         	// Ask user to enable GPS/network in settings
         	gps.showSettingsAlert();
-        }
-	 	
-	 	
-	 	// Ask user for name
-	 	AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-	 	alert.setTitle("Settings");
-	 	alert.setMessage("What is your name?");
-
-	 	// Set an EditText view to get user input 
-	 	final EditText input = new EditText(this);
-	 	alert.setView(input);
-
-	 	alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-	 	public void onClick(DialogInterface dialog, int whichButton) {
-	 	  String value = input.toString();
-	 	  Editable value2 = input.getText();
-	 	  SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Welcome.this);
-	 	  String username = prefs.getString("username", "");
-	 	  }
-	 	});
-
-	 	alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-	 	  public void onClick(DialogInterface dialog, int whichButton) {
-	 	    // Canceled.
-	 	  }
-	 	});
-
-	 	alert.show();
-	    
+        }	    
 	}
 
 	
@@ -274,9 +228,25 @@ public class Welcome extends Activity /* implements LocationListener */{
 		pebble_status.clearAnimation();
 		
 		// Handle Pebble data logging
-		if (mDataLogReceiver != null) {
+		//if (mDataLogReceiver != null) {
 			//unregisterReceiver(mDataLogReceiver);
 			//mDataLogReceiver = null;
+		//}
+	}
+	
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		// Stop animation if application goes in background
+		seize_alert_logo.clearAnimation();
+		seize_alert_motto.clearAnimation();
+		pebble_status.clearAnimation();
+		
+		// Handle Pebble data logging
+		if (mDataLogReceiver != null) {
+			unregisterReceiver(mDataLogReceiver);
+			mDataLogReceiver = null;
 		}
 	}
 
@@ -287,7 +257,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 		
 		
 		// Request updates at startup
-		//locationManager.requestLocationUpdates(provider, 0, 0, this);
+		// locationManager.requestLocationUpdates(provider, 0, 0, this);
 
 		mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
 			String event = new String();
@@ -296,99 +266,100 @@ public class Welcome extends Activity /* implements LocationListener */{
 			public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
 					UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
 
-				//handler.notify();
-				event = SeizeAlert.fromInt(tag.intValue()).getName();
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-				String username = prefs.getString("username", "");
-				
-				// create class object
-		        gps = new GPSTracker(Welcome.this);
-		        
-		        // check if GPS enabled	
-				if(gps.canGetLocation()){
-		        	
-		        	latitude = gps.getLatitude();
-		        	longitude = gps.getLongitude();
-		        	
-		        	// \n is for new line
-		        	Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
-		        											"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
-		        	
-				}else{
-		        	// can't get location
-		        	// GPS or Network is not enabled
-		        	// Ask user to enable GPS/network in settings
-		        	gps.showSettingsAlert();
-		        }
-				
-				
-				if ( event.equals("fall") ){
-					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
-					
-					
-			        // Email
-					// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-					sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
-							alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
+				if (last_timestamp!=timestamp){
+					last_timestamp=timestamp;
+					//handler.notify();
+					event = SeizeAlert.fromInt(tag.intValue()).getName();
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+					String username = prefs.getString("username", "");
 
-					/*
+					// create class object
+					gps = new GPSTracker(Welcome.this);
+
+					// check if GPS enabled	
+					if(gps.canGetLocation()){
+
+						latitude = gps.getLatitude();
+						longitude = gps.getLongitude();
+
+						// \n is for new line
+						Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
+								"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
+
+					}else{
+						// can't get location
+						// GPS or Network is not enabled
+						// Ask user to enable GPS/network in settings
+						gps.showSettingsAlert();
+					}
+
+
+					if ( event.equals("fall") ){
+						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+
+
+						// Email
+						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
+
+						/*
 					// SMS
 					String message = alert_start + username + alert_seizure_body + 
 							alert_location + latitude + "," + longitude + ". " + alert_end;
 					sendSMS("5129445248", message);
-					*/
-						
-					// Location SMS
-					Intent intentlocationsms = new Intent(context, LocationSMS.class);
-					intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
-					intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
-					startService(intentlocationsms);
-						
-					// Play Audio
-					Intent intentplayaudio = new Intent(context, PlayAudio.class);
-					startService(intentplayaudio);
+						 */
 
-					
+						// Location SMS
+						Intent intentlocationsms = new Intent(context, LocationSMS.class);
+						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
+						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+						startService(intentlocationsms);
 
-				} else if ( event.equals("seizure") ){
-					displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
-	
-			        // Email
-					// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-					sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
-							alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
+						// Play Audio
+						Intent intentplayaudio = new Intent(context, PlayAudio.class);
+						startService(intentplayaudio);
 
-					/*
+
+
+					} else if ( event.equals("seizure") ){
+						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+
+						// Email
+						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
+						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
+
+						/*
 					// SMS
 					String message = alert_start + username + alert_seizure_body + 
 							alert_location + latitude + "," + longitude + ". " + alert_end;
 					sendSMS("5129445248", message);
-					*/
-						
-					// Location SMS
-					Intent intentlocationsms = new Intent(context, LocationSMS.class);
-					intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
-					intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
-					startService(intentlocationsms);
-						
-					// Play Audio
-					Intent intentplayaudio = new Intent(context, PlayAudio.class);
-					startService(intentplayaudio);
+						 */
 
-					
+						// Location SMS
+						Intent intentlocationsms = new Intent(context, LocationSMS.class);
+						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
+						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+						startService(intentlocationsms);
 
-				} else if ( event.equals("countdown") ){
-					displayAlertMessage("Alert!!!", "Is this a false alert? Please press the SELECT button on your Pebble.");
+						// Play Audio
+						Intent intentplayaudio = new Intent(context, PlayAudio.class);
+						startService(intentplayaudio);
 
-					// Play Sound for 10 seconds
-					Intent intentplaysound = new Intent(context, PlaySound.class);
-					startService(intentplaysound);
-					
-					// Vibrate for 10000 milliseconds - 10 seconds
-					Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-					v.vibrate(vibPattern, -1);
-					
-					
+
+
+					} else if ( event.equals("countdown") ){
+						displayAlertMessage("Alert!!!", "Is this a false alert? Please press the SELECT button on your Pebble.");
+
+						// Play Sound for 10 seconds
+						Intent intentplaysound = new Intent(context, PlaySound.class);
+						startService(intentplaysound);
+
+						// Vibrate for 10000 milliseconds - 10 seconds
+						Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+						v.vibrate(vibPattern, -1);
+					}
 				}
 			}            
 		};
@@ -441,17 +412,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 			public void onClick(DialogInterface dialog, int whichButton){}
 		})
 		.show();
-	}
-
-
-	/*  
-	 * Sends an SMS message to another device
-	 */  
-	private void sendSMS(String phoneNumber, String message){
-		SmsManager sms = SmsManager.getDefault();
-		Log.i("Before SMS", "Sending SMS");
-		sms.sendTextMessage(phoneNumber, null, message, null, null);
-		Log.i("After SMS", "SMS Sent");
 	}
 
 
@@ -545,31 +505,4 @@ public class Welcome extends Activity /* implements LocationListener */{
 			return null;
 		}
 	}
-	
-	/*
-	@Override
-	public void onLocationChanged(Location location) {
-	    Lat = (location.getLatitude());
-	    Lng = (location.getLongitude());
-	    String lt = String.valueOf(Lat);
-	    String ln = String.valueOf(Lng);
-	    Log.i("UPDATING COORDS", "Latitude = " + lt + ", Longitude" + ln);
-	}
-	
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-	    // TODO Auto-generated method stub	
-	}
-	
-	@Override
-	public void onProviderEnabled(String provider) {
-	    Toast.makeText(this, "Enabled new provider " + provider,
-	        Toast.LENGTH_SHORT).show();
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-	    Toast.makeText(this, "Disabled provider " + provider,
-	        Toast.LENGTH_SHORT).show();
-	}*/
 }
