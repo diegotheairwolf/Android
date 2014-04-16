@@ -23,6 +23,7 @@ public class LocationSMS extends IntentService {
 	
 		double latitude;
 		double longitude;
+		private String alert_location = new String("at the following location: http://maps.google.com/?q=");
 	
 		public int onStartCommand(Intent intent, int flags, int startId) {
 			Log.i("here", "SMS Service starts here...");
@@ -70,9 +71,9 @@ public class LocationSMS extends IntentService {
 		
 			
 		// Use the default value if username is null.	
-			
 		sendSMS("5129445248", "Hello, the patient " + username + 
-				" is having a seizure at the location: " + address);
+				" is having a seizure at the location: " + address +
+				"\n " + alert_location + latitude + "," + longitude);
 		
 			
 		Log.i("***** breakpoint", " ");

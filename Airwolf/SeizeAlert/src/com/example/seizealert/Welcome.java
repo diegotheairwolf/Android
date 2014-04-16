@@ -122,8 +122,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 		//set up notitle 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//set up full screen
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		//getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
+		//		WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_welcome);
 		DATE_FORMAT.setTimeZone(TimeZone.getDefault());
 
@@ -272,6 +272,9 @@ public class Welcome extends Activity /* implements LocationListener */{
 					event = SeizeAlert.fromInt(tag.intValue()).getName();
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 					String username = prefs.getString("username", "");
+					String contact1 = prefs.getString("contact_1", "");
+					String contact2 = prefs.getString("contact_2", "");
+					String contact3 = prefs.getString("contact_3", "");
 
 					// create class object
 					gps = new GPSTracker(Welcome.this);
