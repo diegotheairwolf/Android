@@ -187,6 +187,9 @@ public class Welcome extends Activity /* implements LocationListener */{
         	// Ask user to enable GPS/network in settings
         	gps.showSettingsAlert();
         }	    
+	 	
+	 
+		
 	}
 
 	
@@ -272,9 +275,28 @@ public class Welcome extends Activity /* implements LocationListener */{
 					event = SeizeAlert.fromInt(tag.intValue()).getName();
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 					String username = prefs.getString("username", "");
-					String contact1 = prefs.getString("contact_1", "");
-					String contact2 = prefs.getString("contact_2", "");
-					String contact3 = prefs.getString("contact_3", "");
+					
+					// Get contacts
+					String one = prefs.getString("contact_1", "");
+					String two = prefs.getString("contact_2", "");
+					String three = prefs.getString("contact_3", "");
+					
+					// Parse name, number, and email
+					String [] contactone = one.split("\n");
+					String [] contacttwo = two.split("\n");
+					String [] contactthree = three.split("\n");
+					
+					// Get rid of unnecessary symbols
+					contactone[1].replaceAll("[\\s\\-() ]", "");
+					contacttwo[1].replaceAll("[\\s\\-() ]", "");
+					contactthree[1].replaceAll("[\\s\\-() ]", "");
+					
+					// Array of arrays with contacts
+					String [][] contacts = {contactone,contacttwo,contactthree};
+					
+					
+					
+					
 
 					// create class object
 					gps = new GPSTracker(Welcome.this);
@@ -295,7 +317,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 						// Ask user to enable GPS/network in settings
 						gps.showSettingsAlert();
 					}
-
+					
 
 					if ( event.equals("fall") ){
 						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
