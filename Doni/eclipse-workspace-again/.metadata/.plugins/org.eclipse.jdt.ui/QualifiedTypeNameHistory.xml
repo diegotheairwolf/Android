@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-<fullyQualifiedTypeName name="android.provider.ContactsContract.CommonDataKinds.Phone"/>
 <fullyQualifiedTypeName name="android.provider.ContactsContract.Contacts"/>
 <fullyQualifiedTypeName name="android.provider.ContactsContract"/>
 <fullyQualifiedTypeName name="android.provider.ContactsContract.CommonDataKinds"/>
+<fullyQualifiedTypeName name="android.provider.ContactsContract.Data"/>
 <fullyQualifiedTypeName name="android.provider.ContactsContract.CommonDataKinds.Email"/>
+<fullyQualifiedTypeName name="android.provider.ContactsContract.CommonDataKinds.Phone"/>
+<fullyQualifiedTypeName name="java.util.Stack"/>
+<fullyQualifiedTypeName name="java.util.Comparator"/>
+<fullyQualifiedTypeName name="java.util.Collections"/>
 </qualifiedTypeNameHistroy>
