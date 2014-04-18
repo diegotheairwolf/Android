@@ -12,10 +12,13 @@
 
 package com.example.seizealert;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -24,6 +27,7 @@ import com.example.seizealert.GPSTracker;
 import com.getpebble.android.kit.PebbleKit;
 import com.google.common.primitives.UnsignedInteger;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,11 +56,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.app.IntentService;
+
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -96,6 +106,10 @@ public class Welcome extends Activity /* implements LocationListener */{
 	GPSTracker gps;
 	public final static String EXTRA_LATITUDE = "com.example.seizealert.LATITUDE";
 	public final static String EXTRA_LONGITUDE = "com.example.seizealert.LONGITUDE";
+	public final static String EXTRA_CONTACT_NAME = "com.example.seizealert.CONTACTNAME";
+	public final static String EXTRA_CONTACT_NUMBER = "com.example.seizealert.CONTACTNUMBER";
+	public final static String EXTRA_CONTACT_EMAIL = "com.example.seizealert.CONTACTEMAIL";
+	
 	double latitude;
 	double longitude;
 
@@ -188,10 +202,23 @@ public class Welcome extends Activity /* implements LocationListener */{
         	gps.showSettingsAlert();
         }	    
 	 	
-	 
+	 	
 		
 	}
 
+	// Contacts class for easier parsing
+	public class Contacts {
+		public String name;
+		public String number;
+		public String email;
+		
+		// constructor
+		public Contacts(String a, String b, String c){
+			name = a;
+			number = b;
+			email = c;
+		}
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -254,6 +281,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 	}
 
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -265,12 +293,14 @@ public class Welcome extends Activity /* implements LocationListener */{
 		mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
 			String event = new String();
 
+			@SuppressLint("NewApi")
 			@Override
 			public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
 					UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
 
 				if (last_timestamp!=timestamp){
 					last_timestamp=timestamp;
+					
 					//handler.notify();
 					event = SeizeAlert.fromInt(tag.intValue()).getName();
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -280,23 +310,32 @@ public class Welcome extends Activity /* implements LocationListener */{
 					String one = prefs.getString("contact_1", "");
 					String two = prefs.getString("contact_2", "");
 					String three = prefs.getString("contact_3", "");
-					
+							
 					// Parse name, number, and email
-					String [] contactone = one.split("\n");
-					String [] contacttwo = two.split("\n");
-					String [] contactthree = three.split("\n");
+					String [] contactone = one.split("\\n");
+					String [] contacttwo = two.split("\\n");
+					String [] contactthree = three.split("\\n");
 					
 					// Get rid of unnecessary symbols
-					contactone[1].replaceAll("[\\s\\-() ]", "");
-					contacttwo[1].replaceAll("[\\s\\-() ]", "");
-					contactthree[1].replaceAll("[\\s\\-() ]", "");
+					if(!contactone[1].isEmpty()){	
+						contactone[1] = contactone[1].replaceAll("[\\s\\-()]", "");
+					}
+					if(!(contacttwo[1].isEmpty())){	
+						contacttwo[1] = contacttwo[1].replaceAll("[\\s\\-()]", "");
+					}
+					if(!contactthree[1].isEmpty()){	
+						contactthree[1] = contactthree[1].replaceAll("[\\s\\-()]", "");
+					}
 					
-					// Array of arrays with contacts
-					String [][] contacts = {contactone,contacttwo,contactthree};
+//					// Array of arrays with contacts
+//					//String [][] contacts = {contactone,contacttwo,contactthree};
 					
+					// Array of objects containing the contacts
+					Contacts [] contacts = {new Contacts(contactone[0],contactone[1],contactone[2]),
+											new Contacts(contacttwo[0],contacttwo[1],contacttwo[2]),
+											new Contacts(contactthree[0],contactthree[1],contactthree[2])};
 					
-					
-					
+					Log.i("last checkpoint", "last checkpoint");
 
 					// create class object
 					gps = new GPSTracker(Welcome.this);
@@ -323,24 +362,49 @@ public class Welcome extends Activity /* implements LocationListener */{
 						displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
 
 
+						
+						Geocoder geocoder = new Geocoder(Welcome.this, Locale.getDefault());
+						List<Address> addresses = null;
+							
+						try {
+							addresses = geocoder.getFromLocation(latitude, longitude, 1);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+							
+						String address = addresses.get(0).getAddressLine(0);
+
+						
+						// SMS
+						/*String message = alert_start + username + alert_seizure_body + 
+								alert_location + latitude + "," + longitude + 
+								"\n at the address " + address + ". " + alert_end;
+
+						sendSMS(contacts[0].number, message);*/
+						
+						
+						
+						//for(Contacts i : contacts){
+							// Location SMS
+							Intent intentlocationsms = new Intent(context, LocationSMS.class);
+							intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
+							intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+							intentlocationsms.putExtra(EXTRA_CONTACT_NAME, contacts[0].name);
+							intentlocationsms.putExtra(EXTRA_CONTACT_NUMBER, contacts[0].number);
+							startService(intentlocationsms);
+						//}
+							
+							/*Intent intent = new Intent( Intent.ACTION_VIEW, Uri.parse( "sms:" + contacts[0].number ) );
+							intent.putExtra( "sms_body", message ); 
+							startActivity( intent );*/
+
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+						sendMail(contacts[0].email, alert_heading, alert_start + username + 
 								alert_fall_body + alert_location + latitude + "," + longitude + "." + alert_end);
-
-						/*
-					// SMS
-					String message = alert_start + username + alert_seizure_body + 
-							alert_location + latitude + "," + longitude + ". " + alert_end;
-					sendSMS("5129445248", message);
-						 */
-
-						// Location SMS
-						Intent intentlocationsms = new Intent(context, LocationSMS.class);
-						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
-						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
-						startService(intentlocationsms);
-
+						
+						
 						// Play Audio
 						Intent intentplayaudio = new Intent(context, PlayAudio.class);
 						startService(intentplayaudio);
@@ -352,7 +416,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 
 						// Email
 						// location URL composed as http://maps.google.com/?q=<lat>,<lng>
-						sendMail("seizealert@gmail.com", alert_heading, alert_start + username + 
+						sendMail(contacts[0].email, alert_heading, alert_start + username + 
 								alert_seizure_body + alert_location + latitude + "," + longitude + "." + alert_end);
 
 						/*
@@ -366,6 +430,8 @@ public class Welcome extends Activity /* implements LocationListener */{
 						Intent intentlocationsms = new Intent(context, LocationSMS.class);
 						intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
 						intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
+						intentlocationsms.putExtra(EXTRA_CONTACT_NAME, contacts[0].name);
+						intentlocationsms.putExtra(EXTRA_CONTACT_NUMBER, contacts[0].number);
 						startService(intentlocationsms);
 
 						// Play Audio
@@ -457,6 +523,12 @@ public class Welcome extends Activity /* implements LocationListener */{
 		thread.start();
 	}
 
+	
+	//---sends an SMS message to another device---
+    private void sendSMS(String phoneNumber, String message){
+		SmsManager sms = SmsManager.getDefault();
+		sms.sendTextMessage(phoneNumber, null, message, null, null);
+	}
 
 
 	/*
