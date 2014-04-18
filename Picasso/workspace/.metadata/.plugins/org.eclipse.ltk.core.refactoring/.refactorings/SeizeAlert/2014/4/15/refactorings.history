@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename resource &apos;SeizeAlert/res/drawable-hdpi/seizealert_logo_pebble.png&apos; to &apos;seizealert_logo_notification.png&apos;" description="Rename resource &apos;seizealert_logo_pebble.png&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="res/drawable-hdpi/seizealert_logo_pebble.png" name="seizealert_logo_notification.png" stamp="1397332779416" updateReferences="true"/>
-</session>
