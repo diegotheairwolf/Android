@@ -1,7 +1,0 @@
-INDEX VERSION 1.126+/home/pablo/Group-Dev/Android/Picasso/workspace/.metadata/.plugins/org.eclipse.jdt.core
-789449786.index
-3847271712.index
-3268435354.index
-2706090599.index
-796953727.index
-3471746641.index
