@@ -28,7 +28,7 @@ public class PlaySound extends IntentService {
 	
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("here", "PlaySound Service starts here...");
-		Toast.makeText(this, "Emitting Sound", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Emitting Sound", Toast.LENGTH_SHORT).show();
 	    return super.onStartCommand(intent,flags,startId);
 	}
 

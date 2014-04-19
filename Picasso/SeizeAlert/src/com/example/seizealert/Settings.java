@@ -280,6 +280,10 @@ public static ArrayList<String> sortContacts(ArrayList<String> contacts) {
 		    c.moveToNext();
 		    String number = c.getString(c.getColumnIndex(Data.DATA1));
 		    
+		    if(!email.contains("@")){
+		    	email="";
+		    }
+		    
 		    String contact = name + "\n" + number + "\n" + email;
 		    contacts.add(contact);	    
 		}

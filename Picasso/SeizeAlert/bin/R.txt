@@ -14,7 +14,7 @@ int dimen activity_vertical_margin 0x7f090001
 int drawable ic_action_settings 0x7f020000
 int drawable ic_launcher 0x7f020001
 int drawable seizealert_logo 0x7f020002
-int drawable seizealert_logo_pebble 0x7f020003
+int drawable seizealert_pebble_small_icon 0x7f020003
 int id action_settings 0x7f0c0005
 int id pebble_app_status 0x7f0c0003
 int id pebble_status 0x7f0c0004

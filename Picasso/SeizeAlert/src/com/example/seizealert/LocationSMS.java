@@ -23,6 +23,12 @@ public class LocationSMS extends IntentService {
 	
 		double latitude;
 		double longitude;
+		String name;
+		String number;
+		String email;
+		String username;
+		List<Address> addresses;
+		private String alert_location = new String("at the following location: http://maps.google.com/?q=");
 	
 		public int onStartCommand(Intent intent, int flags, int startId) {
 			Log.i("here", "SMS Service starts here...");
@@ -51,13 +57,15 @@ public class LocationSMS extends IntentService {
 			
 		// Get username currently on preferences
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		String username = prefs.getString("username", "");
+		username = prefs.getString("username", "");
 		
 		latitude = intent.getDoubleExtra(Welcome.EXTRA_LATITUDE, 0.0);
 		longitude = intent.getDoubleExtra(Welcome.EXTRA_LONGITUDE, 0.0);
+		name = intent.getStringExtra(Welcome.EXTRA_CONTACT_NAME);
+		number = intent.getStringExtra(Welcome.EXTRA_CONTACT_NUMBER);
 		
 		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-		List<Address> addresses = null;
+		addresses = null;
 			
 		try {
 			addresses = geocoder.getFromLocation(latitude, longitude, 1);
@@ -67,12 +75,13 @@ public class LocationSMS extends IntentService {
 		}
 			
 		String address = addresses.get(0).getAddressLine(0);
+		String message = "Hello " + name + ", the patient " + username + 
+				" is having a seizure at the location: " + address +
+				"\n " + alert_location + latitude + "," + longitude;
 		
 			
 		// Use the default value if username is null.	
-			
-		sendSMS("5129445248", "Hello, the patient " + username + 
-				" is having a seizure at the location: " + address);
+		sendSMS(number, message);
 		
 			
 		Log.i("***** breakpoint", " ");
