@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -66,6 +67,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -103,7 +105,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 	private TextView seize_alert_motto;
 	private TextView pebble_status;
 	private TextView pebble_app_status;
-	private UnsignedInteger last_timestamp;
 		
 	// GPSTracker class
 	GPSTracker gps;
@@ -115,9 +116,12 @@ public class Welcome extends Activity /* implements LocationListener */{
 	
 	double latitude;
 	double longitude;
-	
+		
 	// Notification ID
 	int mId;
+	
+	// Timestamp tracker
+	List<Integer> timestamps = new ArrayList<Integer>();
 
 	// Automatic email/SMS strings
 	private static final String username = "seizealert@gmail.com";
@@ -127,7 +131,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 	private String alert_fall_body = new String(" has fallen ");	
 	private String alert_seizure_body = new String(" has just had a seizure ");
 	private String alert_location = new String("at the following location: http://maps.google.com/?q=");
-	private String alert_end = new String(". Please try to communicate with this person " +
+	private String alert_end = new String("Please try to communicate with this person " +
 			"immediately and make sure he/she is fine.");
 
 	@Override
@@ -148,7 +152,7 @@ public class Welcome extends Activity /* implements LocationListener */{
 		DATE_FORMAT.setTimeZone(TimeZone.getDefault());
 
 		// Sound welcome song
-		playSound(R.raw.welcome);
+		//playSound(R.raw.welcome);
 		
 		// Update status of Pebble (connected/disconnected)
 		pebble_status = (TextView) findViewById(R.id.pebble_status);
@@ -296,15 +300,16 @@ public class Welcome extends Activity /* implements LocationListener */{
 		// locationManager.requestLocationUpdates(provider, 0, 0, this);
 
 		mDataLogReceiver = new PebbleKit.PebbleDataLogReceiver(SEIZE_ALERT_APP_UUID) {
-			String event = new String();
-
+			@SuppressWarnings("deprecation")
 			@SuppressLint("NewApi")
 			@Override
 			public void receiveData(Context context, UUID logUuid, UnsignedInteger timestamp, 
 					UnsignedInteger tag, UnsignedInteger secondsSinceEpoch) {
-
-				if (last_timestamp!=timestamp){
-					last_timestamp=timestamp;
+				
+				String event = new String();
+				
+				if (!timestamps.contains(timestamp.intValue())){
+					timestamps.add(timestamp.intValue());
 					
 					//Toast.makeText(getApplicationContext(), "Data logging...\nTimestamp:" + timestamp, Toast.LENGTH_LONG).show();
 										
@@ -319,7 +324,6 @@ public class Welcome extends Activity /* implements LocationListener */{
 					if(gps.canGetLocation()){
 						latitude = gps.getLatitude();
 						longitude = gps.getLongitude();
-						// \n is for new line
 						//Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + 
 						//		"\nLong: " + longitude, Toast.LENGTH_LONG).show();	
 					} else {
@@ -353,9 +357,11 @@ public class Welcome extends Activity /* implements LocationListener */{
 						}
 						
 						
-						String message = alert_start + username + alert_seizure_body + 
+						String email_body = alert_start + username + alert_seizure_body + 
 								alert_location + latitude + "," + longitude + 
 								"\n at the address " + address + ". " + alert_end;
+						String sms_body = alert_start + username + alert_seizure_body + 
+								alert_location + latitude + "," + longitude + ".";
 						
 						for (int i = 1 ; i <= 3 ; i++){
 							String contact_str = prefs.getString("contact_" + i, "");
@@ -369,67 +375,39 @@ public class Welcome extends Activity /* implements LocationListener */{
 								if(!contact.number.isEmpty()){	
 									contact.number = contact.number.replaceAll("[\\s\\-()]", "");
 									// Send SMS
-									
+									//Toast.makeText(getApplicationContext(), contact.number, Toast.LENGTH_LONG).show();
+									sendSMS(contact.number, sms_body);
+									sendSMS(contact.number, alert_end);
 								}
 								
 								// Ensure it's an Email and send notification
 								if(!contact.email.isEmpty()){	
 									if (contact.email.contains("@")){
 										// Send Email
-										sendMail(contact.email, alert_heading, message);
+										sendMail(contact.email, alert_heading, email_body);
 									}
 								}
 							}
 						}
+												
+						// Sound instructions alert
+						playSound(R.raw.alertmessage);
 						
+						// Pebble notification
+						// displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
+						displayAndroidNotification(1);
 						
-						
-						
-						
-						/*// SMS
-						String message = alert_start + username + alert_seizure_body + 
-								alert_location + latitude + "," + longitude + 
-								"\n at the address " + address + ". " + alert_end;
-
-						sendSMS(contacts[0].number, message);
-						
-						
-						
-						//for(Contacts i : contacts){
-							// Location SMS
-							Intent intentlocationsms = new Intent(context, LocationSMS.class);
-							intentlocationsms.putExtra(EXTRA_LATITUDE, latitude);
-							intentlocationsms.putExtra(EXTRA_LONGITUDE, longitude);
-							intentlocationsms.putExtra(EXTRA_CONTACT_NAME, contacts[0].name);
-							intentlocationsms.putExtra(EXTRA_CONTACT_NUMBER, contacts[0].number);
-							startService(intentlocationsms);
-						//}
-							
-							Intent intent = new Intent( Intent.ACTION_VIEW, Uri.parse( "sms:" + contacts[0].number ) );
-							intent.putExtra( "sms_body", message ); 
-							startActivity( intent );
-						*/
-
-						// Play Audio
-						Intent intentplayaudio = new Intent(context, PlayAudio.class);
-						startService(intentplayaudio);
-						
-						// Alert box within Pebble application
-						//displayAlertMessage("SeizeAlert!!!", "A notification has been sent to all of your contacts.");
-
-
 					} else if ( event.equals("countdown") ){
 						// Play Sound for 10 seconds
-						Intent intentplaysound = new Intent(context, PlaySound.class);
-						startService(intentplaysound);
+						/*Intent intentplaysound = new Intent(context, PlaySound.class);
+						startService(intentplaysound);*/
 
 						// Vibrate for 10000 milliseconds - 10 seconds
 						Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
 						v.vibrate(vibPattern, -1);
 						
-						// Alert box within Pebble application
-						//displayAlertMessage("Alert!!!", "Is this a false alert, please press the SELECT button on your Pebble.");
-						displayAndroidNotification();
+						// Pebble notification
+						displayAndroidNotification(0);
 					}
 				}
 			}            
@@ -490,6 +468,16 @@ public class Welcome extends Activity /* implements LocationListener */{
 	 * Plays a Sound
 	 */    
 	private void playSound(int sFile){
+		final int playTime = 15;
+		
+		// Set smartphone's volume to the max
+		AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		int originalVolume = audioManager.getStreamVolume(audioManager.STREAM_MUSIC);
+		//Log.i("here", originalVolume + "   -    ORIGINAL VOLUME BEFORE THE AUDIO");
+		int maxVolume = audioManager.getStreamMaxVolume(audioManager.STREAM_MUSIC);
+		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0);
+		//Log.i("here", maxVolume + "    -   AUDIO VOLUME AFTER INCREASING IT");
+		
 		//set up MediaPlayer   
 		final int medFile = sFile;
 
@@ -501,6 +489,26 @@ public class Welcome extends Activity /* implements LocationListener */{
 			}
 		});
 		thread.start();
+		
+
+		// Sleep for 5 seconds.
+		long endTime = System.currentTimeMillis() + playTime*1000;
+		while (System.currentTimeMillis() < endTime) {
+			synchronized (this) {
+				try {
+					wait(endTime - System.currentTimeMillis());
+				} catch (Exception e) {
+				}
+			}
+		}
+
+
+		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalVolume, 0);
+		//Log.i("here", audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + " AUDIO VOLUME AT THE END");
+
+		mp.stop();
+		mp.reset();
+		mp.release();
 	}
 
 	
@@ -588,12 +596,19 @@ public class Welcome extends Activity /* implements LocationListener */{
 	 * This function displays an Android notification
 	 */
 	@SuppressLint("NewApi")
-	public void displayAndroidNotification() {
-		NotificationCompat.Builder mBuilder =
-				new NotificationCompat.Builder(this)
-		.setSmallIcon(R.drawable.seizealert_pebble_small_icon)
-		.setContentTitle("SeizeAlert")
-		.setContentText("A fall has been detected!");
+	public void displayAndroidNotification(int type) {
+		NotificationCompat.Builder mBuilder = null;
+		if (type == 0){
+			mBuilder = new NotificationCompat.Builder(this)
+			.setSmallIcon(R.drawable.seizealert_pebble_small_icon)
+			.setContentTitle("SeizeAlert")
+			.setContentText("Countdown has started on your Pebble!");
+		} else if (type == 1){
+			mBuilder = new NotificationCompat.Builder(this)
+			.setSmallIcon(R.drawable.seizealert_pebble_small_icon)
+			.setContentTitle("SeizeAlert")
+			.setContentText("Email/SMS notifications have been sent.");
+		}
 		// Creates an explicit intent for an Activity in your app
 		Intent resultIntent = new Intent(this, Welcome.class);
 
